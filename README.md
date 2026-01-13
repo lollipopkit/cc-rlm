@@ -64,9 +64,9 @@ For stable and explicit triggering, use the slash commands:
 
 | Command | Description |
 | ------- | ----------- |
-| `/rlm [problem]` | Invoke RLM for iterative multi-pass reasoning |
-| `/arena [task]` | Run multi-model arena battle |
-| `/rlm-arena [task]` | Combine RLM with arena multi-model battles |
+| `/rlm:rlm [problem]` | Invoke RLM for iterative multi-pass reasoning |
+| `/rlm:arena [task]` | Run multi-model arena battle |
+| `/rlm:rlm-arena [task]` | Combine RLM with arena multi-model battles |
 
 ### Example
 

@@ -53,7 +53,7 @@ ARENA_PROVIDER_OPENAI_API_KEY=YOUR_KEY
 2. Run the arena script.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" --prompt "<your task>" --iters 5
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" --prompt "<your task>" --iters 5
 ```
 
 Options you can use:

@@ -17,7 +17,7 @@ $ARGUMENTS
 Run the rlm-arena orchestrator:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/rlm-arena/scripts/rlm_arena.py" --prompt "$ARGUMENTS" --iters 4 --arena-iters 3
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/rlm-arena/scripts/rlm_arena.py" --prompt "$ARGUMENTS" --iters 4 --arena-iters 3
 ```
 
 Present the results with:

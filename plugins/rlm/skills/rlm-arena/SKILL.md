@@ -25,7 +25,7 @@ For each RLM iteration:
 This orchestrator uses the arena runner bundled in this plugin:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/rlm-arena/scripts/rlm_arena.py" --prompt "<your task>" --iters 4 --arena-iters 3
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/rlm-arena/scripts/rlm_arena.py" --prompt "<your task>" --iters 4 --arena-iters 3
 ```
 
 ## Configuration

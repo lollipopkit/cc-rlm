@@ -17,7 +17,7 @@ $ARGUMENTS
 Run the arena script with the given task:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" --prompt "$ARGUMENTS" --iters 5
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" --prompt "$ARGUMENTS" --iters 5
 ```
 
 Parse the output and present:
