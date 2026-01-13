@@ -58,6 +58,16 @@ The `rlm` Skill activates automatically when you use phrases like:
 
 The `arena` / `rlm-arena` Skills activate when you ask for "arena", "battle models", "compare models", or "rlm arena".
 
+### Slash Commands
+
+For stable and explicit triggering, use the slash commands:
+
+| Command | Description |
+| ------- | ----------- |
+| `/rlm [problem]` | Invoke RLM for iterative multi-pass reasoning |
+| `/arena [task]` | Run multi-model arena battle |
+| `/rlm-arena [task]` | Combine RLM with arena multi-model battles |
+
 ### Example
 
 ```text
@@ -71,32 +81,6 @@ Claude: [Applies RLM workflow]
 - Phase 5: Refine and iterate
 - Phase 6: Verify consistency
 - Final: Synthesized answer with evolution summary
-```
-
-## Plugin Structure
-
-```text
-rlm-skill/
-├── .claude-plugin/
-│   └── marketplace.json    # Marketplace definition
-├── plugins/
-│   └── rlm/
-│       ├── .claude-plugin/
-│       │   └── plugin.json       # Plugin manifest
-│       └── skills/
-│           ├── rlm/
-│           │   ├── SKILL.md
-│           │   ├── advanced-techniques.md
-│           │   └── examples.md
-│           ├── arena/
-│           │   ├── SKILL.md
-│           │   └── scripts/
-│           │       └── arena.py
-│           └── rlm-arena/
-│               ├── SKILL.md
-│               └── scripts/
-│                   └── rlm_arena.py
-└── README.md
 ```
 
 ## Mode Selection
