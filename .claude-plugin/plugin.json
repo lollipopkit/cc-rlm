@@ -1,0 +1,20 @@
+{
+  "name": "rlm",
+  "version": "1.0.0",
+  "description": "Recursive Language Model - iteratively refine answers through multi-pass reasoning using Self-Refine, Reflexion, Tree of Thoughts, and Constitutional AI techniques",
+  "author": {
+    "name": "lollipopkit"
+  },
+  "keywords": [
+    "reasoning",
+    "self-refine",
+    "reflexion",
+    "tree-of-thoughts",
+    "iterative",
+    "recursive"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lollipopkit/rlm-skill"
+  }
+}

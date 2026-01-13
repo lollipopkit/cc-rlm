@@ -1,0 +1,13 @@
+{
+  "name": "rlm-marketplace",
+  "owner": {
+    "name": "lollipopkit"
+  },
+  "plugins": [
+    {
+      "name": "rlm",
+      "source": ".",
+      "description": "Recursive Language Model - multi-pass reasoning with Self-Refine, Reflexion, Tree of Thoughts"
+    }
+  ]
+}
