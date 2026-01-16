@@ -41,16 +41,16 @@ def main() -> int:
         cmd = tool_input.get("command")
         cmd_str = cmd if isinstance(cmd, str) else ""
 
-        is_arena = (
-            "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" in cmd_str
-            or "${CLAUDE_PLUGIN_ROOT}/skills/rlm-arena/scripts/rlm_arena.py" in cmd_str
-            or "skills/arena/scripts/arena.py" in cmd_str
-            or "skills/rlm-arena/scripts/rlm_arena.py" in cmd_str
-            or re.search(r"\barena\.py\b", cmd_str) is not None
-            or re.search(r"\brlm_arena\.py\b", cmd_str) is not None
+        is_recursive = (
+            "${CLAUDE_PLUGIN_ROOT}/skills/multi-model/scripts/multi_model.py" in cmd_str
+            or "${CLAUDE_PLUGIN_ROOT}/skills/recursive-arena/scripts/recursive_arena.py" in cmd_str
+            or "skills/multi-model/scripts/multi_model.py" in cmd_str
+            or "skills/recursive-arena/scripts/recursive_arena.py" in cmd_str
+            or re.search(r"\bmulti_model\.py\b", cmd_str) is not None
+            or re.search(r"\brecursive_arena\.py\b", cmd_str) is not None
         )
 
-        if not is_arena:
+        if not is_recursive:
             return 0
 
         hints: list[str] = []
@@ -61,7 +61,7 @@ def main() -> int:
             "Ensure `.env` exists (searched upward from CWD) and includes `ARENA_MODELS` and provider base URL vars."
         )
 
-        msg = "RLM hook hint (arena Bash failed): " + " ".join(hints)
+        msg = "Recursive-reasoning hook hint (multi-model/recursive-arena Bash failed): " + " ".join(hints)
         if not _contains_secret_like_output(msg):
             print(json.dumps({"decision": "block", "reason": msg}))
     return 0

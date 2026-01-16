@@ -1,10 +1,10 @@
 ---
-name: arena
-description: Multi-model arena battle for iterative (recursive) refinement. Rotates models every iteration and has other models judge/critique. Use when user asks to "arena", "battle models", "compare models", "multi-LLM", or wants iterative refinement across multiple OpenAI-compatible / Ollama models.
+name: multi-model
+description: Multi-model battle for iterative (recursive) refinement. Rotates models every iteration and has other models judge/critique. Use when user asks to "battle models", "compare models", "multi-LLM", or wants iterative refinement across multiple OpenAI-compatible / Ollama models.
 allowed-tools: Read, Bash(python:*)
 ---
 
-# Arena Skill
+# Multi-Model Skill
 
 Run a multi-model “battle” loop where:
 
@@ -15,7 +15,7 @@ Run a multi-model “battle” loop where:
 
 ## Configuration (.env)
 
-This skill reads `.env` (searching upward from the current working directory) to find arena config.
+This skill reads `.env` (searching upward from the current working directory) to find multi-model config.
 
 ### Single-endpoint setup (OpenAI-compatible)
 
@@ -50,10 +50,10 @@ ARENA_PROVIDER_OPENAI_API_KEY=YOUR_KEY
 ## How to run
 
 1. Ensure `.env` exists and contains the variables above.
-2. Run the arena script.
+2. Run the multi-model script.
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/arena/scripts/arena.py" --prompt "<your task>" --iters 5
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/multi-model/scripts/multi_model.py" --prompt "<your task>" --iters 5
 ```
 
 Options you can use:

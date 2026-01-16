@@ -4,7 +4,7 @@ English | [简体中文](README.zh-CN.md)
 
 ## Plugins
 
-- `rlm`: Simulate Recursive Language Model - multi-pass reasoning with Self-Refine, Reflexion, Tree of Thoughts.
+- `recursive-reasoning`: Recursive Reasoning Engine - multi-pass reasoning with Self-Refine, Reflexion, Tree of Thoughts.
 - `dev-loop`: Iterate on an issue until it is ready to merge: create branch, fix, commit, open PR, wait for AI review, apply feedback, repeat.
 
 Plugin-specific docs live in each plugin folder.

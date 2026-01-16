@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Arena: multi-model battle runner.
+"""Multi-model battle runner.
 
 Reads configuration from a .env file (searching upward from CWD) and calls
 OpenAI-compatible chat completions endpoints.

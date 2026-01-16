@@ -1,16 +1,16 @@
 ---
-name: rlm
-description: Recursive Language Model - iteratively refine answers through multiple reasoning passes using Self-Refine, Reflexion, and Tree of Thoughts techniques. Use when asked to "think deeply", "refine iteratively", "use RLM", or when facing complex problems that benefit from multi-pass reasoning.
+name: recursive
+description: Recursive Reasoning - iteratively refine answers through multiple reasoning passes using Self-Refine, Reflexion, and Tree of Thoughts techniques. Use when asked to "think deeply", "refine iteratively", "use recursive reasoning", or when facing complex problems that benefit from multi-pass reasoning.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__seq-think__sequentialthinking
 ---
 
-# Recursive Language Model (RLM) Skill
+# Recursive Reasoning Skill
 
-This skill implements state-of-the-art recursive reasoning techniques from research, including **Self-Refine**, **Reflexion**, **Tree of Thoughts**, and **Constitutional AI** principles.
+This skill implements state-of-the-art recursive reasoning techniques from research, including **Self-Refine**, **Reflexion**, and **Tree of Thoughts** principles.
 
 ## Theoretical Foundation
 
-RLM synthesizes multiple research paradigms:
+Recursive reasoning synthesizes multiple research paradigms:
 
 | Technique | Core Idea | Source |
 | ----------- | ----------- | -------- |
@@ -178,15 +178,15 @@ Stop iterating when ANY of these are met:
 
 | Problem Type | Recommended Mode | Iterations |
 | -------------- | ------------------ | ------------ |
-| Simple bug fix | Light RLM | 2 |
-| Algorithm design | Full RLM | 3-4 |
-| Architecture decision | Full RLM + ToT | 4-5 |
-| Creative/open-ended | Full RLM + Branching | 5+ |
-| Mission-critical code | Full RLM + Consistency | 5+ |
+| Simple bug fix | Light Recursive | 2 |
+| Algorithm design | Full Recursive | 3-4 |
+| Architecture decision | Full Recursive + ToT | 4-5 |
+| Creative/open-ended | Full Recursive + Branching | 5+ |
+| Mission-critical code | Full Recursive + Consistency | 5+ |
 
 ## Trigger Phrases
 
-- "Use RLM to solve this"
+- "Use recursive reasoning to solve this"
 - "Think recursively about..."
 - "Refine this iteratively"
 - "Deep think mode"
@@ -196,15 +196,15 @@ Stop iterating when ANY of these are met:
 
 ## Integration with Sequential Thinking
 
-For maximum depth, combine RLM with `mcp__seq-think__sequentialthinking`:
+For maximum depth, combine Recursive Reasoning with `mcp__seq-think__sequentialthinking`:
 
 - **Sequential Thinking**: Micro-level step-by-step reasoning within each phase
-- **RLM**: Macro-level iterative refinement across phases
+- **Recursive Reasoning**: Macro-level iterative refinement across phases
 
 ```text
-RLM Iteration 1
+Recursive Iteration 1
   └── Sequential Thinking (steps 1-5)
-RLM Iteration 2
+Recursive Iteration 2
   └── Sequential Thinking (steps 1-7)
 ...
 ```

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""RLM-Arena orchestrator.
+"""Recursive-Arena orchestrator.
 
-Runs an outer iterative loop (RLM-style) where each round calls the arena runner
+Runs an outer iterative loop (recursive-style) where each round calls the multi-model runner
 to generate a best candidate via multiple models.
 
 This script is designed to be run by Claude Code via Bash(python:*).
@@ -31,7 +31,7 @@ def _plugin_root() -> pathlib.Path:
     return pathlib.Path(__file__).resolve().parents[3]
 
 
-def _run_arena(
+def _run_multi_model(
     *,
     prompt: str,
     arena_iters: int,
@@ -41,11 +41,11 @@ def _run_arena(
     timeout_s: float,
 ) -> Dict[str, Any]:
     plugin_root = _plugin_root()
-    arena_py = plugin_root / "skills" / "arena" / "scripts" / "arena.py"
+    multi_model_py = plugin_root / "skills" / "multi-model" / "scripts" / "multi_model.py"
 
     cmd = [
         sys.executable,
-        str(arena_py),
+        str(multi_model_py),
         "--prompt",
         prompt,
         "--iters",
@@ -61,17 +61,27 @@ def _run_arena(
         "--json",
     ]
 
-    completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    try:
+        completed = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_s,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(f"multi-model timed out after {timeout_s:.0f}s") from e
+
     if completed.returncode != 0:
         stderr = completed.stderr.strip()
         stdout = completed.stdout.strip()
-        detail = stderr or stdout or f"arena exited with {completed.returncode}"
+        detail = stderr or stdout or f"multi-model exited with {completed.returncode}"
         raise RuntimeError(detail)
 
     try:
         return json.loads(completed.stdout)
     except json.JSONDecodeError as e:
-        raise RuntimeError("arena did not return valid JSON") from e
+        raise RuntimeError("multi-model did not return valid JSON") from e
 
 
 def _summarize_round(arena_json: Dict[str, Any]) -> Tuple[float, str, str]:
@@ -99,7 +109,7 @@ def _summarize_round(arena_json: Dict[str, Any]) -> Tuple[float, str, str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="RLM-Arena orchestrator")
+    parser = argparse.ArgumentParser(description="Recursive-Arena orchestrator")
     parser.add_argument("--prompt", required=True)
     parser.add_argument("--iters", type=int, default=4, help="Outer iterations")
     parser.add_argument("--arena-iters", type=int, default=int(os.environ.get("RLM_ARENA_ARENA_ITERS", "3")))
@@ -114,7 +124,7 @@ def main() -> int:
 
     transcript: Dict[str, Any] = {
         "outer_iters": args.iters,
-        "arena_iters": args.arena_iters,
+        "multi_model_iters": args.arena_iters,
         "rounds": [],
         "final": None,
     }
@@ -123,7 +133,7 @@ def main() -> int:
     best_score: float = -1.0
 
     for i in range(1, max(1, args.iters) + 1):
-        arena_json = _run_arena(
+        multi_model_json = _run_multi_model(
             prompt=outer_prompt,
             arena_iters=args.arena_iters,
             max_judges=args.max_judges,
@@ -132,7 +142,7 @@ def main() -> int:
             timeout_s=args.timeout,
         )
 
-        score, writer, answer = _summarize_round(arena_json)
+        score, writer, answer = _summarize_round(multi_model_json)
 
         transcript["rounds"].append(
             {

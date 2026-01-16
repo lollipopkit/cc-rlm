@@ -1,7 +1,7 @@
 {
-  "name": "rlm",
+  "name": "recursive-reasoning",
   "version": "1.0.0",
-  "description": "Recursive Language Model - iteratively refine answers through multi-pass reasoning using Self-Refine, Reflexion, Tree of Thoughts, and Constitutional AI techniques",
+  "description": "Recursive Reasoning Engine - iteratively refine answers through multi-pass reasoning using Self-Refine, Reflexion, Tree of Thoughts, and multi-model collaboration",
   "author": {
     "name": "lollipopkit"
   },
