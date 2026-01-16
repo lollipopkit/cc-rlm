@@ -56,9 +56,9 @@ For stable and explicit triggering, use the slash commands:
 ### Example
 
 ```text
-User: Use RLM to design a rate limiter algorithm
+User: Use recursive reasoning to design a rate limiter algorithm
 
-Claude: [Applies RLM workflow]
+Claude: [Applies recursive reasoning workflow]
 - Phase 1: Decompose problem
 - Phase 2: Generate initial solution
 - Phase 3: Self-critique against principles
@@ -72,11 +72,11 @@ Claude: [Applies RLM workflow]
 
 | Problem Type | Mode | Iterations |
 | -------------- | ------ | ------------ |
-| Simple bug fix | Light RLM | 2 |
-| Algorithm design | Full RLM | 3-4 |
-| Architecture decision | Full RLM + ToT | 4-5 |
-| Creative/open-ended | Full RLM + Branching | 5+ |
-| Mission-critical code | Full RLM + Consistency | 5+ |
+| Simple bug fix | Light Recursive | 2 |
+| Algorithm design | Full Recursive | 3-4 |
+| Architecture decision | Full Recursive + ToT | 4-5 |
+| Creative/open-ended | Full Recursive + Branching | 5+ |
+| Mission-critical code | Full Recursive + Consistency | 5+ |
 
 ## License
 

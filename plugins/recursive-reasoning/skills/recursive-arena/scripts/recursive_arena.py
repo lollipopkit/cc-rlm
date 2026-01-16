@@ -61,7 +61,17 @@ def _run_multi_model(
         "--json",
     ]
 
-    completed = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    try:
+        completed = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_s,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(f"multi-model timed out after {timeout_s:.0f}s") from e
+
     if completed.returncode != 0:
         stderr = completed.stderr.strip()
         stdout = completed.stdout.strip()

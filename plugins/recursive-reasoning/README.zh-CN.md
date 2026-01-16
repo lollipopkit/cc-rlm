@@ -56,9 +56,9 @@
 ### 示例
 
 ```text
-User: Use RLM to design a rate limiter algorithm
+User: Use recursive reasoning to design a rate limiter algorithm
 
-Claude: [Applies RLM workflow]
+Claude: [Applies Recursive Reasoning workflow]
 - Phase 1: Decompose problem
 - Phase 2: Generate initial solution
 - Phase 3: Self-critique against principles
@@ -72,11 +72,11 @@ Claude: [Applies RLM workflow]
 
 | 问题类型 | 模式 | 迭代次数 |
 | -------------- | ------ | ------------ |
-| 简单 bug 修复 | Light RLM | 2 |
-| 算法设计 | Full RLM | 3-4 |
-| 架构决策 | Full RLM + ToT | 4-5 |
-| 创意/开放式 | Full RLM + Branching | 5+ |
-| 关键任务代码 | Full RLM + Consistency | 5+ |
+| 简单 bug 修复 | Light Recursive | 2 |
+| 算法设计 | Full Recursive | 3-4 |
+| 架构决策 | Full Recursive + ToT | 4-5 |
+| 创意/开放式 | Full Recursive + Branching | 5+ |
+| 关键任务代码 | Full Recursive + Consistency | 5+ |
 
 ## License
 

@@ -4,7 +4,7 @@
     "name": "lollipopkit"
   },
   "metadata": {
-    "description": "Marketplace for lk plugins (rlm, dev-loop)"
+    "description": "Marketplace for lk plugins (recursive-reasoning, dev-loop)"
   },
   "plugins": [
     {

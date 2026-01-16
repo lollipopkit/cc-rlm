@@ -178,11 +178,11 @@ Stop iterating when ANY of these are met:
 
 | Problem Type | Recommended Mode | Iterations |
 | -------------- | ------------------ | ------------ |
-| Simple bug fix | Light RLM | 2 |
-| Algorithm design | Full RLM | 3-4 |
-| Architecture decision | Full RLM + ToT | 4-5 |
-| Creative/open-ended | Full RLM + Branching | 5+ |
-| Mission-critical code | Full RLM + Consistency | 5+ |
+| Simple bug fix | Light Recursive | 2 |
+| Algorithm design | Full Recursive | 3-4 |
+| Architecture decision | Full Recursive + ToT | 4-5 |
+| Creative/open-ended | Full Recursive + Branching | 5+ |
+| Mission-critical code | Full Recursive + Consistency | 5+ |
 
 ## Trigger Phrases
 

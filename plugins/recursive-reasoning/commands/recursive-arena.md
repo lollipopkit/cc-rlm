@@ -24,6 +24,6 @@ Present the results with:
 
 1. Final best answer
 2. Evolution summary table (iteration, writer model ID, avg judge score, key refinement)
-3. Accumulated insights from the RLM reflection memory
+3. Accumulated insights from the reflection memory
 
 Never disclose provider/model names; only use numeric IDs.
