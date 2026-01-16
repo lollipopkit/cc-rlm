@@ -15,6 +15,5 @@
   "repository": "https://github.com/lollipopkit/cc-plugins",
   "license": "MIT",
   "commands": "./commands/",
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
