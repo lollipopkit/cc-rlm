@@ -21,45 +21,6 @@ RLM synthesizes multiple research paradigms:
 | **Constitutional AI** | Principle-guided self-critique and revision | Anthropic 2022 |
 | **Least-to-Most** | Decompose complex problems into sequential subproblems | Zhou et al. 2022 |
 
-## Core Algorithm
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    RLM EXECUTION FLOW                       │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────┐                                           │
-│  │  DECOMPOSE  │ ← Least-to-Most: Break into subproblems   │
-│  └──────┬──────┘                                           │
-│         ▼                                                   │
-│  ┌─────────────┐                                           │
-│  │  GENERATE   │ ← Initial solution attempt                │
-│  └──────┬──────┘                                           │
-│         ▼                                                   │
-│  ┌─────────────┐                                           │
-│  │  CRITIQUE   │ ← Self-Refine: Identify weaknesses        │
-│  └──────┬──────┘                                           │
-│         ▼                                                   │
-│  ┌─────────────┐                                           │
-│  │  REFLECT    │ ← Reflexion: Update memory buffer         │
-│  └──────┬──────┘                                           │
-│         ▼                                                   │
-│  ┌─────────────┐                                           │
-│  │   REFINE    │ ← Apply improvements                      │
-│  └──────┬──────┘                                           │
-│         ▼                                                   │
-│     Converged? ─── No ──→ Branch? ─── Yes ──→ ToT Search   │
-│         │                    │                      │      │
-│        Yes                  No                      │      │
-│         │                    │                      │      │
-│         ▼                    └──────────────────────┘      │
-│  ┌─────────────┐                     │                     │
-│  │  SYNTHESIZE │ ◄──────────────────┘                     │
-│  └─────────────┘                                           │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
 ## Workflow Phases
 
 ### Phase 1: Problem Decomposition (Least-to-Most)

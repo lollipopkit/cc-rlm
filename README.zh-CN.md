@@ -11,13 +11,26 @@
 
 ## 使用方法
 
-在Claude Code 中
+### 远程 Marketplace
+
+在 Claude Code 中：
 
 ```bash
 # 将此仓库添加为 marketplace
 /plugin marketplace add lollipopkit/cc-plugins
 # 从此 marketplace 安装插件
 /plugin install <plugin-name>@lk-ccp # 替换 <plugin-name> 为具体插件名
+```
+
+### 本地开发
+
+如果你想使用此仓库的本地版本：
+
+```bash
+# 将本地文件夹添加为 marketplace
+/plugin marketplace add .
+# 从本地 marketplace 安装插件
+/plugin install <plugin-name>@lk-ccp
 ```
 
 ## 许可证
