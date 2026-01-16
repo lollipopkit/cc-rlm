@@ -78,21 +78,6 @@ Claude: [Applies RLM workflow]
 | Creative/open-ended | Full RLM + Branching | 5+ |
 | Mission-critical code | Full RLM + Consistency | 5+ |
 
-## Research References
-
-| Technique | Paper | Venue/Year |
-| ----------- | ------- | ----------- |
-| PRefLexOR | Preference-Based Recursive Language Models | Nature 2025 |
-| SSR | Socratic Self-Refine for LLM Reasoning | arXiv 2025 |
-| Self-Refinement | Learning to Refine: Parallel Reasoning in LLMs | OpenReview 2025 |
-| Self-Reflection | Self-reflection enhances LLMs (Dual-loop) | Nature 2025 |
-| Recursive Reasoning | Tiny Recursive Models (Samsung TRM) | arXiv 2025 |
-| Self-Evolving Agents | Reframing Self-Evolving LLM Agents | arXiv 2026 |
-| Survey | A Comprehensive Survey on Latent Chain-of-Thought | arXiv 2025 |
-| Survey | A Survey of Reasoning Large Language Models | arXiv 2025 |
-| Survey | Empowering LLMs with Logical Reasoning | IJCAI 2025 |
-| Survey | A Survey of Chain-of-X Paradigms | COLING 2025 |
-
 ## License
 
 MIT
