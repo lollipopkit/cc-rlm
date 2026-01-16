@@ -18,7 +18,11 @@ Behavior:
 
 Rules:
 
-- Create a new branch based on the issue content ONLY if the current branch is the base branch (e.g. `main`).
+- Branch Logic:
+    1. Check if the current branch is the base branch (e.g. `main`).
+    2. If NOT the base branch, check if it's already associated with a different PR or issue.
+    3. If associated with a DIFFERENT issue/PR, prompt the user to either switch to the base branch or explicitly confirm reusing the current branch.
+    4. Create a new branch based on the issue content ONLY if the current branch is the base branch.
 - Avoid destructive operations.
 - If review comments request changes that look incorrect or out-of-scope, ask the user before proceeding.
 - Prefer using `gh` for GitHub workflows when available.

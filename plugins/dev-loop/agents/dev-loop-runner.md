@@ -87,10 +87,13 @@ Workflow (repeat until completion or blocked):
 6. Wait for review
    - Poll for new bot/AI review comments and review state.
    - Polling Strategy:
-     - Initial wait: 5 minutes.
-     - If no new comments, wait again, increasing the wait time by 1 minute each round (e.g., 5m, 6m, 7m...).
-     - If no new comments are found for 30 minutes total (cumulative wait time for the current round of review), stop polling and notify the user.
-     - If new comments are found, reset the wait timer for the next review cycle and proceed to Apply feedback.
+     1. Initialize `current_wait = 5m` and `cumulative_wait = 0m`.
+     2. In each round, poll for comments.
+     3. If NO new comments are found:
+        - If `cumulative_wait + current_wait > 30m`, stop polling and notify the user.
+        - Otherwise, wait for `current_wait`, then update `cumulative_wait += current_wait` and `current_wait += 1m`, and repeat from step 2.
+     4. If new comments are found:
+        - Reset `current_wait = 5m` and `cumulative_wait = 0m` for the next review cycle, and proceed to Apply feedback.
 7. Apply feedback
    - Group comments by file/area, fix, commit, push.
 8. Notify

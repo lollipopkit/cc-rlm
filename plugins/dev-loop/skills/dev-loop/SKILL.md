@@ -73,9 +73,9 @@ Notifications (optional):
 7. Wait for AI review
    - Poll `gh pr view` / `gh api` for new comments, review state, and check runs.
    - Polling Strategy:
-     - Start with 5 minutes wait.
+     - Start with 5 minutes wait and 0 minutes cumulative wait.
      - Increase wait time by 1 minute each round if no new comments are found.
-     - If no new comments appear for 30 minutes total for the current review cycle, stop and exit.
+     - Stop before performing a wait that would make cumulative wait exceed 30 minutes total for the current review cycle.
      - If new comments are found, solve them and reset the polling strategy for the next cycle.
 8. Apply feedback
    - Address comments in the smallest changeset.
