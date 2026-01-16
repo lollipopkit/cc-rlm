@@ -11,6 +11,13 @@
 5. 应用反馈
 6. 重复直到可合并
 
+## 安装
+
+```bash
+/plugin marketplace add lollipopkit/cc-plugins
+/plugin install issue-loop@lk-ccp
+```
+
 ## 组件
 
 - Skill：`skills/issue-loop/SKILL.md`

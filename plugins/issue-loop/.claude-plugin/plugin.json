@@ -4,5 +4,18 @@
   "description": "Iterate on an issue until it is ready to merge: fix, commit, open PR, wait for AI review, apply feedback, repeat.",
   "author": {
     "name": "lollipopkit"
-  }
+  },
+  "keywords": [
+    "issue",
+    "pr",
+    "workflow",
+    "automation",
+    "feedback-loop"
+  ],
+  "repository": "https://github.com/lollipopkit/cc-plugins",
+  "license": "MIT",
+  "commands": "./commands/",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "agents": "./agents/"
 }

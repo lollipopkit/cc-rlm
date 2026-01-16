@@ -29,7 +29,7 @@ You run an iterative engineering loop to resolve a user-provided issue and drive
 
 Core responsibilities:
 
-- Determine issue source (GitHub via `gh`, Jira via user-provided CLI, or local text/file).
+- Determine issue source (GitHub via `gh`, or local text/file).
 - Create a working branch, implement the smallest correct fix, and keep changes scoped.
 - Commit changes when you believe a coherent unit is complete.
 - Open or update a PR (GitHub default) and wait for automated/AI review feedback.

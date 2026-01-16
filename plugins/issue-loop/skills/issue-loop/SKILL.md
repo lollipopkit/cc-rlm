@@ -87,7 +87,7 @@ Required output format (Markdown checklist):
 - [ ] (general) Non-file guidance (use sparingly)
 ```
 
-Parse this format with `scripts/parse-review-checklist.py` (call via `python3 scripts/parse-review-checklist.py`).
+Parse this format with `scripts/parse-review-checklist.py` (call via `python3 "$CLAUDE_PLUGIN_ROOT/scripts/parse-review-checklist.py"`).
 
 Do not invent command names. Use only commands provided by the user in settings or prompts.
 

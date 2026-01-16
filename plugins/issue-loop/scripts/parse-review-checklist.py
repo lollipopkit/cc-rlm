@@ -43,10 +43,9 @@ def _split_target_and_message(body: str) -> Dict[str, str]:
 
     # If the line begins with a scope marker like "(general) ...", treat it as non-file guidance.
     if body.startswith("(") and ")" in body:
-        head = body.split(")", 1)[0]
-        tail = body.split(")", 1)[1]
-        scope = (head + ")").strip()
-        message = tail.strip()
+        parts = body.split(")", 1)
+        scope = (parts[0] + ")").strip()
+        message = parts[1].strip()
         return {"target": scope, "message": message}
 
     # If no separator is present, treat the whole line as message.

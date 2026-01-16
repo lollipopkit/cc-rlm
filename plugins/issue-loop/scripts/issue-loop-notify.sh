@@ -136,9 +136,12 @@ case "${notify_shell:-auto}" in
     if [[ -n "${notify_shell:-}" && "${notify_shell}" != "auto" && "${notify_shell}" != "bash" && "${notify_shell}" != "fish" ]]; then
       echo "issue-loop-notify: unsupported notify_shell='${notify_shell}'; falling back to auto (bash then fish)" >&2
     fi
-    if run_with_shell bash "$notify_command_template"; then
-      exit 0
+
+    if command -v bash >/dev/null 2>&1; then
+      run_with_shell bash "$notify_command_template"
+      exit $?
     fi
+
     run_with_shell fish "$notify_command_template"
     ;;
 esac
