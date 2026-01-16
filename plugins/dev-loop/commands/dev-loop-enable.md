@@ -17,7 +17,7 @@ Steps:
    - `wait_behavior` (poll|ping_ai, default: `poll`)
    - If `wait_behavior` is `ping_ai`:
      - `ai_reviewer_id` (e.g., `coderabbitai`)
-     - `ping_message_template` (default: `@{{ai_id}} Why still blocking this PR?`)
+     - `ping_message_template` (default: `@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?`)
      - `ping_threshold` (number of wait rounds with no response before pinging, default: 3)
    - `llm_command_template` (optional)
    - `llm_shell` (auto|bash|fish)

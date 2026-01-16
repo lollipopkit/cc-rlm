@@ -48,8 +48,8 @@ review_poll_seconds: 60
 # Wait for review behavior
 wait_behavior: "poll"   # poll|ping_ai
 ai_reviewer_id: "coderabbitai"
-ping_message_template: "@{{ai_id}} Why still blocking this PR?"
-ping_threshold: 3       # number of wait rounds before pinging
+ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
+ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
 
 # External non-interactive LLM (optional)
 # This allows using a custom LLM script/command to generate fixes instead of using the agent's built-in reasoning.
