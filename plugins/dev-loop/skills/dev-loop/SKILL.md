@@ -1,7 +1,7 @@
 ---
 name: Dev Loop
 description: This skill should be used when the user asks to "run dev-loop", "fix this issue and open a PR", "auto commit and create a PR", "wait for AI code review and apply comments", or "iterate until merge-ready".
-version: 0.1.0
+version: 1.0.3
 ---
 
 Run an iterative workflow that takes an issue/task input and drives it to a merge-ready pull request through repeated branch creation → fix → commit → PR → review → apply feedback cycles.
@@ -29,6 +29,11 @@ Accept one of:
 - A local file path containing the task description.
 - A free-form text description.
 
+If the user provides a free-form description or a local file but NO GitHub issue exists yet, and the goal is a GitHub-based workflow:
+
+- Offer to create a GitHub issue first using `gh issue create --title "<title>" --body "<body>"`.
+- Use the newly created issue number for the rest of the workflow.
+
 ## Settings and state
 
 Read `.claude/dev-loop.local.md` from the project root when present.
@@ -43,14 +48,8 @@ Recommended frontmatter fields:
 
 Review:
 
-- `review_mode: "github"|"local-agent"|"custom"`
 - `max_review_polls: 40`
 - `review_poll_seconds: 60`
-
-External non-interactive LLM (optional):
-
-- `llm_shell: "auto"|"bash"|"fish"`
-- `llm_command_template: "..."` (a user-provided command template)
 
 Notifications (optional):
 
@@ -61,9 +60,12 @@ Notifications (optional):
 
 ## GitHub default workflow (gh)
 
-1. Fetch issue context
+1. Fetch/Create issue context
    - Use `gh issue view` or `gh pr view` to get title/body and current status.
-   - If NO issue identifier is provided, or if on a non-base branch, try to find an associated PR for the current branch using `gh pr list --head $(git branch --show-current) --json number,url,title,body`.
+   - If NO issue identifier is provided (only free-form text or a local file):
+     - Prompt the user to confirm if they want to track this in a new GitHub issue.
+     - When confirmed, use `gh issue create --title "<summary>" --body "<description>"` to create it.
+   - For non-base branches without an issue, try to find an associated PR using `gh pr list --head $(git branch --show-current) --json number,url,title,body`.
 2. Create branch
    - Check if the current branch is the base branch (e.g. `main`).
    - If NOT on the base branch, verify if the current branch is already associated with the target issue/PR.
@@ -80,51 +82,45 @@ Notifications (optional):
    - Use `gh pr create` with a structured body: Summary + Test plan.
    - If the issue is from GitHub, include `Closes #<issue-number>` or the issue URL in the PR body to link them.
 7. Wait for AI review
-   - Poll `gh pr view` / `gh api` for new comments, review state, and check runs.
-   - Polling Strategy:
-     - Initial wait: 5 minutes (cumulative wait starts at 0 and is updated after each wait period).
+   - Poll `gh api graphql` for new comments and review state.
+   - Use GraphQL to filter out outdated and resolved comments:
+
+     ```bash
+     gh api graphql -F owner='{owner}' -F name='{repo}' -F pr={number} -f query='
+       query($name: String!, $owner: String!, $pr: Int!) {
+         repository(owner: $owner, name: $name) {
+           pullRequest(number: $pr) {
+             reviewThreads(first: 100) {
+               nodes {
+                 isOutdated
+                 isResolved
+                 comments(last: 20) {
+                   nodes {
+                     body
+                     path
+                     line
+                     author { login }
+                   }
+                 }
+               }
+             }
+           }
+         }
+       }
+     ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
+     ```
+
+   - Polling Strategy (Autonomous):
+     - DO NOT wait for user input between polls. Use the `Bash` tool with `sleep <seconds>` to wait autonomously.
+     - Initial wait: 5 minutes (`sleep 300`).
      - Increase wait time by 1 minute each round if no new comments are found.
-     - Stop before performing a wait that would make cumulative wait exceed 30 minutes total for the current review cycle.
-     - If new comments are found, solve them and reset the polling strategy for the next cycle.
+     - Stop polling and ask the user for guidance ONLY if the cumulative wait exceeds 30 minutes.
+     - If new comments are found, immediately proceed to "Apply feedback" and reset the polling cycle.
 8. Apply feedback
    - Address comments in the smallest changeset.
    - If feedback looks wrong or out-of-scope, ask the user.
 9. Repeat
    - Commit/push and wait for another review cycle until merge-ready.
-
-## External LLM review (non-interactive)
-
-When `review_mode` is not `github` and `llm_command_template` is configured:
-
-- Build a review prompt and export it as `DEV_LOOP_PROMPT`.
-- Require the external tool to output a Markdown checklist (see format below).
-- Execute `llm_command_template` using `llm_shell`.
-  - For `claude` CLI, use `-p/--print` and pass the prompt as the final argument.
-  - For `ccpxy`, pass a profile first (e.g. `gpt`), then use `--` to forward `claude` args.
-- Parse stdout into actionable items.
-
-Required output format (Markdown checklist):
-
-```markdown
-## Review Checklist
-- [ ] path/to/file.ts:123 - Describe the exact change to make
-- [ ] path/to/file.ts - Describe the change (line optional)
-- [ ] (general) Non-file guidance (use sparingly)
-```
-
-Parse this format with `scripts/parse-review-checklist.py` (call via `python3 "$CLAUDE_PLUGIN_ROOT/scripts/parse-review-checklist.py"`).
-
-Do not invent command names. Use only commands provided by the user in settings or prompts.
-
-## Custom command integration
-
-When the user provides a custom command such as `xxxcli "do xxx"`, follow the instruction to use that CLI for:
-
-- fetching issue context (Jira/other)
-- posting status updates
-- sending notifications
-
-Do not invent command names. Use only commands provided by the user in settings or prompts.
 
 ## Safety and boundaries
 

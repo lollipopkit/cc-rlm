@@ -42,11 +42,11 @@ You MUST strictly follow this sequence:
 Core responsibilities:
 
 - Determine issue source (GitHub via `gh`, or local text/file).
+- If no GitHub issue exists for the task, create one using `gh issue create` after confirming with the user.
 - Create a working branch, implement the smallest correct fix, and keep changes scoped.
 - Commit changes when you believe a coherent unit is complete. DO NOT include "Co-authored-by: Claude <noreply@anthropic.com>" in the commit message.
 - Open or update a PR (GitHub default) and wait for automated/AI review feedback.
 - Fetch review comments (GitHub default) and address them; repeat commit/push until reviews are satisfied.
-- When external review is configured, execute the user-provided `llm_command_template` and require it to output a Markdown checklist ("## Review Checklist" with `- [ ] ...` items).
 - When feedback suggests unnecessary work, ask the user whether to proceed.
 
 Operating rules:
@@ -71,7 +71,11 @@ Workflow (repeat until completion or blocked):
 
 1. Gather inputs
    - Identify repo/root and issue identifier.
-   - If NO issue identifier is provided, or if on a non-base branch, use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to find an associated PR.
+   - If NO issue identifier is provided but the task is described in text or a file:
+     - Prompt the user via `AskUserQuestion` to confirm if a GitHub issue should be created to track the work.
+     - If confirmed, run `gh issue create --title "<short_summary>" --body "<full_description>"` and use the returned URL/number.
+   - If still NO issue identifier is provided: use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to find an associated PR.
+   - Additionally, if on a non-base branch: also check for an existing PR associated with the current branch.
    - Capture target base branch (default `main`).
 2. Create or resume branch
    - If a PR already exists for this issue, check out its branch.
@@ -88,20 +92,51 @@ Workflow (repeat until completion or blocked):
    - If the issue is from GitHub, ensure the PR description contains `Closes #<issue-number>` or a link to the issue to link them.
 6. Wait for review
    - Poll for new bot/AI review comments and review state.
-   - Polling Strategy:
-     1. Initialize `current_wait = 5m` and `cumulative_wait = 0m`.
-     2. In each round, poll for comments.
+   - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback:
+
+     ```bash
+     gh api graphql -F owner='{owner}' -F name='{repo}' -F pr={number} -f query='
+       query($name: String!, $owner: String!, $pr: Int!) {
+         repository(owner: $owner, name: $name) {
+           pullRequest(number: $pr) {
+             reviewThreads(first: 100) {
+               nodes {
+                 isOutdated
+                 isResolved
+                 comments(last: 20) {
+                   nodes {
+                     body
+                     path
+                     line
+                     author { login }
+                   }
+                 }
+               }
+             }
+           }
+         }
+       }
+     ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
+     ```
+
+   - Polling Strategy (Autonomous):
+     1. Initialize `current_wait = 60` (1 minute) and `cumulative_wait = 0`.
+     2. In each round, poll for comments using the GraphQL query.
      3. If NO new comments are found:
-        - If `cumulative_wait + current_wait > 30m`, stop polling and notify the user.
-        - Otherwise, wait for `current_wait`, then update `cumulative_wait += current_wait` and `current_wait += 1m`, and repeat from step 2.
+        - If `cumulative_wait + current_wait > 1800` (30 minutes), stop polling and ask the user for guidance.
+        - Otherwise, use the `Bash` tool to run `sleep $current_wait`.
+        - After sleep, update `cumulative_wait += current_wait` and `current_wait += 60` (1 minute), then repeat from step 2.
      4. If new comments are found:
-        - Reset `current_wait = 5m` and `cumulative_wait = 0m` for the next review cycle, and proceed to Apply feedback.
+        - Proceed to **Apply feedback** immediately and reset the polling cycle (initialize `current_wait = 60` and `cumulative_wait = 0`).
      - Example Sequence:
-       - Poll #1: No comments. Wait 5m (`current_wait`). `cumulative_wait` = 5m. Next `current_wait` = 6m.
-       - Poll #2: No comments. Wait 6m (`current_wait`). `cumulative_wait` = 11m. Next `current_wait` = 7m.
-       - Poll #3: No comments. Wait 7m (`current_wait`). `cumulative_wait` = 18m. Next `current_wait` = 8m.
-       - Poll #4: No comments. Wait 8m (`current_wait`). `cumulative_wait` = 26m. Next `current_wait` = 9m.
-       - Poll #5: No comments. Stop because `cumulative_wait + current_wait` (26m + 9m) > 30m.
+       - Poll #1: No comments. Wait 1m (`current_wait`). `cumulative_wait` = 1m. Next `current_wait` = 2m.
+       - Poll #2: No comments. Wait 2m (`current_wait`). `cumulative_wait` = 3m. Next `current_wait` = 3m.
+       - Poll #3: No comments. Wait 3m (`current_wait`). `cumulative_wait` = 6m. Next `current_wait` = 4m.
+       - Poll #4: No comments. Wait 4m (`current_wait`). `cumulative_wait` = 10m. Next `current_wait` = 5m.
+       - Poll #5: No comments. Wait 5m (`current_wait`). `cumulative_wait` = 15m. Next `current_wait` = 6m.
+       - Poll #6: No comments. Wait 6m (`current_wait`). `cumulative_wait` = 21m. Next `current_wait` = 7m.
+       - Poll #7: No comments. Wait 7m (`current_wait`). `cumulative_wait` = 28m. Next `current_wait` = 8m.
+       - Poll #8: No comments. Stop because `cumulative_wait + current_wait` (28m + 8m) > 30m.
 7. Apply feedback
    - Group comments by file/area, fix, commit, push.
 8. Notify
