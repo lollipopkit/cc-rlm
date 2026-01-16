@@ -1,7 +1,7 @@
 ---
 name: Dev Loop
 description: This skill should be used when the user asks to "run dev-loop", "fix this issue and open a PR", "auto commit and create a PR", "wait for AI code review and apply comments", or "iterate until merge-ready".
-version: 1.0.1
+version: 1.0.3
 ---
 
 Run an iterative workflow that takes an issue/task input and drives it to a merge-ready pull request through repeated branch creation → fix → commit → PR → review → apply feedback cycles.
@@ -64,8 +64,8 @@ Notifications (optional):
    - Use `gh issue view` or `gh pr view` to get title/body and current status.
    - If NO issue identifier is provided (only free-form text or a local file):
      - Prompt the user to confirm if they want to track this in a new GitHub issue.
-     - If yes, use `gh issue create --title "<summary>" --body "<description>"` to create it.
-   - If on a non-base branch and no issue is provided, try to find an associated PR for the current branch using `gh pr list --head $(git branch --show-current) --json number,url,title,body`.
+     - When confirmed, use `gh issue create --title "<summary>" --body "<description>"` to create it.
+   - For non-base branches without an issue, try to find an associated PR using `gh pr list --head $(git branch --show-current) --json number,url,title,body`.
 2. Create branch
    - Check if the current branch is the base branch (e.g. `main`).
    - If NOT on the base branch, verify if the current branch is already associated with the target issue/PR.
