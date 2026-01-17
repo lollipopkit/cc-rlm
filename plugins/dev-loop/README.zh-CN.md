@@ -21,7 +21,7 @@
 
 ## 组件
 
-- Skill：`skills/dev-loop/SKILL.md`
+- Command：`commands/dev-loop.md` (工作流定义)
 - Agent：`agents/dev-loop-runner.md`
 - Commands：
   - `/dev-loop`：启动或继续该工作流
@@ -50,12 +50,6 @@ wait_behavior: "poll"   # poll|ping_ai
 ai_reviewer_id: "coderabbitai"
 ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
 ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
-
-# External non-interactive LLM (optional)
-# This allows using a custom LLM script/command to generate fixes instead of using the agent's built-in reasoning.
-# The template can reference $DEV_LOOP_PROMPT.
-llm_shell: "auto"       # auto|bash|fish
-llm_command_template: "" # e.g. llm_script.sh "$DEV_LOOP_PROMPT"  OR  ccpxy "$DEV_LOOP_PROMPT"
 
 # Notifications (optional)
 notify_enabled: false
