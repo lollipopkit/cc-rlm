@@ -24,11 +24,11 @@ Run the dev-loop workflow using the plugin components in this plugin. This comma
 
 1. **Determine the issue source**:
    - If the argument looks like a GitHub URL or issue/PR number, use `gh` to fetch title/body, labels, repo, and existing PR linkage.
-   - If NO argument is provided, or if starting on a non-base branch, use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to check for an existing PR associated with the current branch.
-   - If NO argument is provided and NO existing PR is found, the agent will prompt for a task description or offer to create a new issue.
+   - When NO argument is provided, or if starting on a non-base branch, use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to check for an existing PR associated with the current branch.
+   - Should NO argument be provided and NO existing PR is found, the agent will prompt for a task description or offer to create a new issue.
    - If the argument looks like a local file path, read it and treat it as the issue/task description.
    - Otherwise, treat it as a free-form text task.
-   - If a text task or local file is provided and no GitHub issue exists, the agent will offer to create one to track the work.
+   - For cases where a text task or local file is provided and no GitHub issue exists, the agent will offer to create one to track the work.
 2. **Read settings** from `.claude/dev-loop.local.md` if present. Supported fields in YAML frontmatter:
    - `enabled: true|false`
    - `base_branch: "main"`
@@ -39,8 +39,6 @@ Run the dev-loop workflow using the plugin components in this plugin. This comma
    - `ai_reviewer_id: "..."` (e.g., `coderabbitai`)
    - `ping_message_template: "..."`
    - `ping_threshold: 3`
-   - `llm_shell: "auto"|"bash"|"fish"`
-   - `llm_command_template: "..."`
    - `notify_enabled: true|false`
    - `notify_shell: "auto"|"bash"|"fish"`
    - `notify_on_stop: true|false`

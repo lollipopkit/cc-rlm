@@ -19,8 +19,6 @@ Steps:
      - `ai_reviewer_id` (e.g., `coderabbitai`)
      - `ping_message_template` (default: `@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?`)
      - `ping_threshold` (number of wait rounds with no response before pinging, default: 3)
-   - `llm_command_template` (optional)
-   - `llm_shell` (auto|bash|fish)
    - `notify_enabled` (true/false)
    - If `notify_enabled` is true, ask for the notification method/template:
      - Provide common examples like `ntfy` (e.g., `curl -d "$DEV_LOOP_MESSAGE" ntfy.sh/topic`), `Bark`, or custom scripts.
@@ -30,5 +28,4 @@ Steps:
 
 Notes:
 
-- `llm_command_template` may reference `$DEV_LOOP_PROMPT`.
 - `notify_command_template` may reference `$DEV_LOOP_MESSAGE` and `$DEV_LOOP_EVENT_JSON_B64`.
