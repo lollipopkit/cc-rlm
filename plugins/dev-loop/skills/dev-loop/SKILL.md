@@ -86,6 +86,7 @@ Notifications (optional):
    - Run the smallest relevant test/build command.
 5. Commit
    - Use a clear commit message derived from the issue title.
+   - **Git Protocol**: NEVER use `git push --force`, `git push -f`, or `git commit --amend` on branches that have already been pushed to the remote or have an open PR. Always create new commits and use standard `git push`.
 6. Open PR
    - Use `gh pr create` with a structured body: Summary + Test plan.
    - If the issue is from GitHub, include `Closes #<issue-number>` or the issue URL in the PR body to link them.
