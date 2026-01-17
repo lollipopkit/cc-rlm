@@ -62,24 +62,25 @@ fi
 
 export DEV_LOOP_PROJECT_DIR="$PROJECT_DIR"
 
-# Extract YAML frontmatter between --- markers.
+# Extract YAML frontmatter between the FIRST pair of --- markers.
 #
 # NOTE: This is intentionally a lightweight, line-based extractor and is NOT a full YAML parser.
-# It only supports simple single-line `key: value` pairs (no multiline values, no nested
-# structures, and avoid special characters/colons in values). If you need richer config,
-# switch to a proper YAML parser.
+# It only supports simple single-line `key: value` pairs.
 #
 # Backward-compat: `notify_command` (old) is treated as `notify_command_template` (new).
-FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$SETTINGS_FILE" || true)
+FRONTMATTER=""
+if head -n 1 "$SETTINGS_FILE" | grep -q "^---$"; then
+  FRONTMATTER=$(sed -n '2,/^---$/ { /^---$/q; p; }' "$SETTINGS_FILE" || true)
+fi
 
-enabled=$(echo "$FRONTMATTER" | awk -F': *' '$1=="enabled"{print $2}' | tr -d '"' | head -n 1)
-notify_enabled=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_enabled"{print $2}' | tr -d '"' | head -n 1)
-notify_on_stop=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_on_stop"{print $2}' | tr -d '"' | head -n 1)
-notify_shell=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_shell"{print $2}' | tr -d '"' | head -n 1)
+enabled=$(echo "$FRONTMATTER" | awk -F': *' '$1=="enabled"{print $2}' | tr -d '"'\'' ' | head -n 1)
+notify_enabled=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_enabled"{print $2}' | tr -d '"'\'' ' | head -n 1)
+notify_on_stop=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_on_stop"{print $2}' | tr -d '"'\'' ' | head -n 1)
+notify_shell=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_shell"{print $2}' | tr -d '"'\'' ' | head -n 1)
 
 # Backward-compat: notify_command (old) vs notify_command_template (new).
-notify_command_template=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_command_template"{sub($1 FS, ""); print}' | head -n 1)
-notify_command=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_command"{sub($1 FS, ""); print}' | head -n 1)
+notify_command_template=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_command_template"{sub($1 FS, ""); sub(/^[ \t]+/, ""); print}' | head -n 1)
+notify_command=$(echo "$FRONTMATTER" | awk -F': *' '$1=="notify_command"{sub($1 FS, ""); sub(/^[ \t]+/, ""); print}' | head -n 1)
 if [[ -z "${notify_command_template:-}" ]]; then
   notify_command_template="$notify_command"
 fi
@@ -101,6 +102,7 @@ if [[ -z "${notify_command_template:-}" ]]; then
 fi
 
 # A short default message; templates should prefer structured env vars.
+# Use a separate variable for the unquoted message and one for the shell-quoted version.
 message="dev-loop stop event: ${DEV_LOOP_EVENT_NAME:-Stop} | project: $PROJECT_DIR"
 if [[ -n "${DEV_LOOP_REASON:-}" ]]; then
   message="$message | reason: ${DEV_LOOP_REASON}"
@@ -109,6 +111,10 @@ if [[ -n "${DEV_LOOP_TRANSCRIPT_PATH:-}" ]]; then
   message="$message | transcript: ${DEV_LOOP_TRANSCRIPT_PATH}"
 fi
 export DEV_LOOP_MESSAGE="$message"
+# Provide a pre-quoted version for safer use in templates.
+# Declare and assign separately to avoid masking exit status (SC2155).
+DEV_LOOP_MESSAGE_QUOTED="'$(echo "$message" | sed "s/'/'\\\\''/g")'"
+export DEV_LOOP_MESSAGE_QUOTED
 
 run_with_shell() {
   local shell_name="$1"
@@ -116,13 +122,14 @@ run_with_shell() {
 
   if [[ "$shell_name" == "fish" ]]; then
     if command -v fish >/dev/null 2>&1; then
-      fish -lc "$cmd"
+      # Execute the command string directly in fish.
+      fish -c "$cmd"
       return $?
     fi
     return 127
   fi
 
-  bash -lc "$cmd"
+  bash -c "$cmd"
 }
 
 case "${notify_shell:-auto}" in

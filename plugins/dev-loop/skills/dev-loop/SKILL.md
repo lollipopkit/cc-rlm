@@ -86,15 +86,21 @@ Notifications (optional):
    - Run the smallest relevant test/build command.
 5. Commit
    - Use a clear commit message derived from the issue title.
+   - **Git Protocol**: NEVER use `git push --force`, `git push -f`, or `git commit --amend` on branches that have already been pushed to the remote or have an open PR. Always create new commits and use standard `git push`.
 6. Open PR
    - Use `gh pr create` with a structured body: Summary + Test plan.
    - If the issue is from GitHub, include `Closes #<issue-number>` or the issue URL in the PR body to link them.
 7. Wait for AI review
    - Poll `gh api graphql` for new comments and review state.
-   - Use `gh pr view --json mergeable,reviewDecision` to check if the PR is ready for merge.
+   - Use `gh pr view --json isDraft,mergeable,reviewDecision` to check if the PR is ready for merge.
      - `MERGEABLE`: Ready for merge (if approved).
      - `UNKNOWN`: Calculating; continue polling.
      - `CONFLICTING`: Conflicts detected; requires manual resolution.
+     - If `isDraft` is `true`:
+       - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
+       - Ask the user whether to:
+         a) Stop polling and wait for manual intervention, OR
+         b) Continue polling but skip ping/notify attempts until the PR is marked ready for review.
    - Use GraphQL to filter out outdated and resolved comments:
 
      ```bash
@@ -123,11 +129,11 @@ Notifications (optional):
      ```
 
    - Polling Strategy (Autonomous):
-     - DO NOT wait for user input between polls. Use the `Bash` tool with `sleep <seconds>` to wait autonomously.
-     - Initial wait: 5 minutes (`sleep 300`).
-     - Increase wait time by 1 minute each round if no new comments are found.
-     - Keep track of `wait_rounds_without_response`.
-     - If `wait_behavior` is `ping_ai` and `wait_rounds_without_response` reaches `ping_threshold`, post the configured ping message as a PR comment and reset `wait_rounds_without_response = 0` to avoid repeated pings.
+     - **IMPORTANT**: You MUST remain in this polling loop autonomously. DO NOT wait for user input between polls. Use the `Bash` tool with `sleep <seconds>` to wait autonomously, and then immediately proceed to the next poll. DO NOT exit and DO NOT ask the user for permission to wait.
+     - Initial wait: 2 minutes (`sleep 120`).
+     - Increase wait time using exponential backoff (e.g., 2m, 4m, 8m...) capped at 15 minutes.
+     - Keep track of `wait_rounds_without_response` and `pings_sent`.
+     - If `wait_behavior` is `ping_ai`, `wait_rounds_without_response` reaches `ping_threshold`, and `pings_sent < 2`, post the configured ping message as a PR comment, increment `pings_sent`, and reset `wait_rounds_without_response = 0` to avoid repeated pings.
      - Stop polling and ask the user for guidance ONLY if the cumulative wait exceeds 30 minutes.
      - If new comments are found, immediately proceed to "Apply feedback" and reset the polling cycle.
 8. Apply feedback

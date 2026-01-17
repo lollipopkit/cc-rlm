@@ -36,17 +36,30 @@ def _split_target_and_message(body: str) -> Dict[str, str]:
     body = body.strip()
 
     # Prefer explicit separators with surrounding spaces.
-    for sep in (" - ", " — "):
+    for sep in (" - ", " — ", ": "):
         if sep in body:
             left, right = body.split(sep, 1)
-            return {"target": left.strip(), "message": right.strip()}
+            # Basic validation that 'left' looks like a target (file path or scope)
+            # Tighten validation to require a path-like structure or explicit scope
+            if left.startswith("(") or "/" in left or "\\" in left or re.match(r"^[^\s:]+\.[a-z0-9]{1,10}$", left, re.I):
+                return {"target": left.strip(), "message": right.strip()}
 
     # If the line begins with a scope marker like "(general) ...", treat it as non-file guidance.
     if body.startswith("(") and ")" in body:
         parts = body.split(")", 1)
         scope = (parts[0] + ")").strip()
         message = parts[1].strip()
+        # Remove leading separator if it survived the split
+        for prefix in ("- ", "— ", ": "):
+            if message.startswith(prefix):
+                message = message[len(prefix):].strip()
         return {"target": scope, "message": message}
+
+    # Heuristic: if it looks like "path/to/file.ts Fix this"
+    # Match a path-like string at the beginning followed by a space.
+    path_match = re.match(r"^([^\s:]+\.[a-z0-9]{1,10}(?::\d+)?(?::\d+)?)\s+(.+)$", body, re.I)
+    if path_match:
+        return {"target": path_match.group(1), "message": path_match.group(2)}
 
     # If no separator is present, treat the whole line as message.
     return {"target": "", "message": body}
