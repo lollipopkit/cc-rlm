@@ -45,7 +45,15 @@ review_mode: "github"   # github|local-agent|custom
 max_review_polls: 40
 review_poll_seconds: 60
 
+# Wait for review behavior
+wait_behavior: "poll"   # poll|ping_ai
+ai_reviewer_id: "coderabbitai"
+ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
+ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
+
 # External non-interactive LLM (optional)
+# This allows using a custom LLM script/command to generate fixes instead of using the agent's built-in reasoning.
+# The template can reference $DEV_LOOP_PROMPT.
 llm_shell: "auto"       # auto|bash|fish
 llm_command_template: "" # e.g. llm_script.sh "$DEV_LOOP_PROMPT"  OR  ccpxy "$DEV_LOOP_PROMPT"
 
@@ -58,42 +66,3 @@ notify_command_template: ""      # executed with selected shell; can reference e
 
 这里可以写给 dev-loop 的额外说明。
 ```
-
-### 模板与环境变量
-
-`llm_command_template`：
-
-- 期望执行一个非交互式的 LLM 工具。
-- runner 会在执行前导出 `DEV_LOOP_PROMPT`。
-- 命令应输出一个 Markdown checklist，以便稳定解析。
-
-期望输出格式：
-
-```markdown
-## Review Checklist
-- [ ] path/to/file.ts:123 - 描述需要做的具体修改
-- [ ] path/to/file.ts - 描述修改（行号可选）
-- [ ] (general) 非文件级建议（尽量少用）
-```
-
-解析脚本：`python3 "$CLAUDE_PLUGIN_ROOT/scripts/parse-review-checklist.py"`（开发时也可用 `python3 dev-loop/scripts/parse-review-checklist.py`）。
-
-示例：
-
-- `llm_script.sh "$DEV_LOOP_PROMPT"`
-- `ccpxy gpt -- -p "$DEV_LOOP_PROMPT"`（如果 `ccpxy` 只在 fish 下可用，设置 `llm_shell: "fish"`）
-
-关于 `ccpxy`：在 fish 配置里，`ccpxy` 会把第一个非 option 参数当作 profile 名（例如 `gpt`/`g3p`/`g3f`/`gc`/`glm`/`c`）。不要把 `llm_command_template` 设成 `ccpxy "$DEV_LOOP_PROMPT"`，因为 prompt 会被当成 profile。
-
-关于 `claude` CLI：非交互模式是 `-p/--print`，因此模板通常需要包含 `-p` 并把 prompt 放到最后。
-
-`notify_command_template`：
-
-- 由 Stop hook 脚本 `scripts/dev-loop-notify.sh` 执行。
-- hook 会导出：
-  - `DEV_LOOP_MESSAGE`（短消息）
-  - `DEV_LOOP_PROJECT_DIR`
-  - `DEV_LOOP_EVENT_NAME`
-  - `DEV_LOOP_REASON`
-  - `DEV_LOOP_TRANSCRIPT_PATH`
-  - `DEV_LOOP_EVENT_JSON_B64`（base64 编码的 hook 输入 JSON）

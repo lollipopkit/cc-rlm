@@ -45,7 +45,15 @@ review_mode: "github"   # github|local-agent|custom
 max_review_polls: 40
 review_poll_seconds: 60
 
+# Wait for review behavior
+wait_behavior: "poll"   # poll|ping_ai
+ai_reviewer_id: "coderabbitai"
+ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
+ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
+
 # External non-interactive LLM (optional)
+# This allows using a custom LLM script/command to generate fixes instead of using the agent's built-in reasoning.
+# The template can reference $DEV_LOOP_PROMPT.
 llm_shell: "auto"       # auto|bash|fish
 llm_command_template: "" # e.g. llm_script.sh "$DEV_LOOP_PROMPT"  OR  ccpxy "$DEV_LOOP_PROMPT"
 
@@ -58,42 +66,3 @@ notify_command_template: ""      # executed with selected shell; can reference e
 
 Additional instructions for dev-loop can go here.
 ```
-
-### Templates and environment variables
-
-`llm_command_template`:
-
-- Intended to run a non-interactive LLM tool.
-- The runner will export `DEV_LOOP_PROMPT` before execution.
-- The command should output a Markdown checklist so it can be parsed deterministically.
-
-Expected output format:
-
-```markdown
-## Review Checklist
-- [ ] path/to/file.ts:123 - Describe the exact change to make
-- [ ] path/to/file.ts - Describe the change (line optional)
-- [ ] (general) Non-file guidance (use sparingly)
-```
-
-Parse with: `python3 "$CLAUDE_PLUGIN_ROOT/scripts/parse-review-checklist.py"` (or `python3 dev-loop/scripts/parse-review-checklist.py` while developing)
-
-Examples:
-
-- `llm_script.sh "$DEV_LOOP_PROMPT"`
-- `ccpxy gpt -- -p "$DEV_LOOP_PROMPT"` (if `ccpxy` is only available in fish, set `llm_shell: "fish"`)
-
-Note on `ccpxy`: in your fish config, `ccpxy` treats the first non-option argument as a profile name (e.g. `gpt`, `g3p`, `g3f`, `gc`, `glm`, `c`). Do not set `llm_command_template` to `ccpxy "$DEV_LOOP_PROMPT"`, because the prompt would be interpreted as a profile.
-
-Note on `claude` CLI: non-interactive mode is `-p/--print`, so the template should generally include `-p` and pass the prompt as the final argument.
-
-`notify_command_template`:
-
-- Executed by the Stop hook script `scripts/dev-loop-notify.sh`.
-- The hook exports:
-  - `DEV_LOOP_MESSAGE` (short message)
-  - `DEV_LOOP_PROJECT_DIR`
-  - `DEV_LOOP_EVENT_NAME`
-  - `DEV_LOOP_REASON`
-  - `DEV_LOOP_TRANSCRIPT_PATH`
-  - `DEV_LOOP_EVENT_JSON_B64` (base64-encoded hook input JSON)

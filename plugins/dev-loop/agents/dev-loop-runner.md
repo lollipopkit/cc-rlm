@@ -59,7 +59,7 @@ Operating rules:
 Settings:
 
 - Read `.claude/dev-loop.local.md` if present in the project root.
-- Parse YAML frontmatter for configuration (enabled, notification settings, review mode, polling limits).
+- Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits).
 
 Default completion criteria (unless overridden by settings):
 
@@ -120,14 +120,23 @@ Workflow (repeat until completion or blocked):
      ```
 
    - Polling Strategy (Autonomous):
-     1. Initialize `current_wait = 60` (1 minute) and `cumulative_wait = 0`.
-     2. In each round, poll for comments using the GraphQL query.
-     3. If NO new comments are found:
+     1. Initialize `current_wait = 60` (1 minute), `cumulative_wait = 0`, and `wait_rounds_without_response = 0`.
+     2. **Validation**: If `wait_behavior` is `ping_ai`:
+        - Ensure `ai_reviewer_id` is set. If not, log a warning and fall back to `wait_behavior = "poll"`.
+        - Ensure `ping_threshold` is at least 1. If not, default it to 3.
+     3. In each round, poll for comments using the GraphQL query.
+     4. If NO new comments are found:
+        - Increment `wait_rounds_without_response`.
+        - If `wait_behavior` is `ping_ai` and `wait_rounds_without_response` >= `ping_threshold`:
+          - Post a comment to the PR:
+            1. Interpolate the `ping_message_template` by replacing `{{ai_id}}` with `ai_reviewer_id`.
+            2. Use `gh pr comment --body "$MESSAGE"` where `$MESSAGE` is the interpolated content, ensuring proper shell quoting/escaping (e.g. using a heredoc or body file if the message contains special characters).
+          - Reset `wait_rounds_without_response = 0` to avoid repeated pings.
         - If `cumulative_wait + current_wait > 1800` (30 minutes), stop polling and ask the user for guidance.
         - Otherwise, use the `Bash` tool to run `sleep $current_wait`.
         - After sleep, update `cumulative_wait += current_wait` and `current_wait += 60` (1 minute), then repeat from step 2.
      4. If new comments are found:
-        - Proceed to **Apply feedback** immediately and reset the polling cycle (initialize `current_wait = 60` and `cumulative_wait = 0`).
+        - Proceed to **Apply feedback** immediately and reset the polling cycle (initialize `current_wait = 60`, `cumulative_wait = 0`, and `wait_rounds_without_response = 0`).
      - Example Sequence:
        - Poll #1: No comments. Wait 1m (`current_wait`). `cumulative_wait` = 1m. Next `current_wait` = 2m.
        - Poll #2: No comments. Wait 2m (`current_wait`). `cumulative_wait` = 3m. Next `current_wait` = 3m.
