@@ -39,6 +39,8 @@ Run the dev-loop workflow using the plugin components in this plugin. This comma
    - `ai_reviewer_id: "..."` (e.g., `coderabbitai`)
    - `ping_message_template: "..."`
    - `ping_threshold: 3`
+   - `llm_shell: "auto"|"bash"|"fish"`
+   - `llm_command_template: "..."`
    - `notify_enabled: true|false`
    - `notify_shell: "auto"|"bash"|"fish"`
    - `notify_on_stop: true|false`
