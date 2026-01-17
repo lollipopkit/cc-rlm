@@ -91,7 +91,11 @@ Workflow (repeat until completion or blocked):
    - Else (if already on a feature branch), skip branch creation and use the current branch.
 3. Implement fix
    - Explore codebase minimally.
-   - If the working tree is dirty, either commit the changes (`git commit -m "Save work before dev-loop"`) or stash them (`git stash`) before starting.
+   - If the working tree is dirty:
+     - First run `git status` to identify uncommitted changes.
+     - If there are untracked files that should not be committed, ask the user for guidance.
+     - Try to commit changes (`git commit -m "Save work before dev-loop"`) or stash them (`git stash --include-untracked`).
+     - If the operation fails (e.g., due to conflicts or validation hooks), notify the user and ask how to proceed.
    - Make code changes.
    - Run the smallest relevant tests.
 4. Commit
@@ -105,7 +109,11 @@ Workflow (repeat until completion or blocked):
    - Use `gh pr view --json isDraft,mergeable,reviewDecision` to check if the PR is ready for merge.
      - Valid `mergeable` values: `MERGEABLE` (ready), `CONFLICTING` (needs manual fix), `UNKNOWN` (calculating, poll again).
      - Valid `reviewDecision` values: `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`.
-     - If `isDraft` is `true`, notify the user that the PR is a draft and may not receive reviews until marked as ready.
+     - If `isDraft` is `true`:
+       - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
+       - Ask the user whether to:
+         a) Stop polling and wait for manual intervention, OR
+         b) Continue polling but skip ping/notify attempts until the PR is marked ready for review.
    - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback:
 
      ```bash

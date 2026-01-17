@@ -122,7 +122,7 @@ run_with_shell() {
 
   if [[ "$shell_name" == "fish" ]]; then
     if command -v fish >/dev/null 2>&1; then
-      # Use a heredoc to avoid quoting issues with the command itself.
+      # Execute the command string directly in fish.
       fish -c "$cmd"
       return $?
     fi
