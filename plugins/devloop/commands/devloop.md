@@ -66,6 +66,11 @@ Run the devloop workflow using the plugin components in this plugin. This comman
     ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
     ```
 
+- **Presence & Communication (MANDATORY)**:
+  - CRITICAL: DO NOT include "Co-authored-by: Claude" or any variation in commit messages.
+  - CRITICAL: DO NOT include "Generated with Claude" or AI signatures in PR descriptions. Specifically, NEVER include "🤖 Generated with [Claude Code](https://claude.com/claude-code)".
+  - Maintain a professional, human-like presence in all git and GitHub metadata.
+  - If any sub-agent or tool includes these, you MUST remove them before completing the task.
 - **Avoid destructive operations**.
 - If review comments request changes that look incorrect or out-of-scope, ask the user before proceeding.
 - Prefer using `gh` for GitHub workflows when available.
