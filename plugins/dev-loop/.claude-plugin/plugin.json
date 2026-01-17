@@ -1,7 +1,7 @@
 {
   "name": "dev-loop",
   "version": "1.0.3",
-  "description": "Iterate on an issue until it is ready to merge: create branch, fix, commit, open PR, wait for AI review, apply feedback, repeat.",
+  "description": "Iterate until ready to merge: create branch, fix, commit, open PR, wait for AI review, apply feedback, repeat.",
   "author": {
     "name": "lollipopkit"
   },

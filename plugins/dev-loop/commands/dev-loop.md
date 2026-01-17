@@ -41,6 +41,7 @@ Run the dev-loop workflow using the plugin components in this plugin. This comma
 - **Git Protocol**: NEVER use `git push --force`, `git push -f`, or `git commit --amend` on branches that have already been pushed to the remote or have an open PR. Always create new commits and use standard `git push`.
 - **Review Polling**: The agent will remain in an autonomous polling loop using `sleep` between polls.
   - GraphQL for filtering comments:
+
     ```bash
     gh api graphql -F owner='{owner}' -F name='{repo}' -F pr={number} -f query='
       query($name: String!, $owner: String!, $pr: Int!) {
@@ -54,6 +55,7 @@ Run the dev-loop workflow using the plugin components in this plugin. This comma
       }
     ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
     ```
+
 - **Avoid destructive operations**.
 - If review comments request changes that look incorrect or out-of-scope, ask the user before proceeding.
 - Prefer using `gh` for GitHub workflows when available.
