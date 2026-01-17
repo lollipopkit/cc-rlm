@@ -68,9 +68,11 @@ Notifications (optional):
 
 1. Fetch/Create issue context
    - Use `gh issue view` or `gh pr view` to get title/body and current status.
-   - If NO issue identifier is provided (only free-form text or a local file):
-     - Prompt the user to confirm if they want to track this in a new GitHub issue.
-     - When confirmed, use `gh issue create --title "<summary>" --body "<description>"` to create it.
+   - If NO issue identifier or task description is provided (only free-form text or a local file):
+     - Run `gh pr list --head $(git branch --show-current) --json number,url,title,body` to find an associated PR.
+     - If an associated PR is found, use it to resume the workflow.
+     - Otherwise, prompt the user via `AskUserQuestion` for a task description or to confirm if they want to track this in a new GitHub issue.
+     - When confirmed, use `gh issue create --title "<summary>" --body "<description>"` to create it. This ensures the workflow has a source of truth and allows for PR linking via "Closes #number".
    - For non-base branches without an issue, try to find an associated PR using `gh pr list --head $(git branch --show-current) --json number,url,title,body`.
 2. Create branch
    - Check if the current branch is the base branch (e.g. `main`).

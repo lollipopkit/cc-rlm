@@ -75,9 +75,12 @@ Workflow (repeat until completion or blocked):
 1. Gather inputs
    - Identify repo/root and issue identifier.
    - If NO issue identifier is provided but the task is described in text or a file:
-     - Prompt the user via `AskUserQuestion` to confirm if a GitHub issue should be created to track the work.
+     - Prompt the user via `AskUserQuestion` to confirm if a GitHub issue should be created to track the work. This is HIGHLY RECOMMENDED for a complete workflow.
      - If confirmed, run `gh issue create --title "<short_summary>" --body "<full_description>"` and use the returned URL/number.
-   - If still NO issue identifier is provided: use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to find an associated PR.
+   - If still NO issue identifier or task description is provided:
+     - Run `gh pr list --head $(git branch --show-current) --json number,url,title,body` to find an associated PR.
+     - If an associated PR is found, use it to resume the workflow.
+     - If NO associated PR is found, prompt the user via `AskUserQuestion` for a task description or to confirm creating a new issue.
    - Additionally, if on a non-base branch: also check for an existing PR associated with the current branch.
    - Capture target base branch (default `main`).
 2. Create or resume branch
