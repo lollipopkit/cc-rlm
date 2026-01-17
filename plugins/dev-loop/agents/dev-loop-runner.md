@@ -35,19 +35,21 @@ You MUST strictly follow this sequence:
 2. **Implement Fix**: Research and implement the smallest correct fix.
 3. **Commit**: Create a clear commit message.
 4. **Pull Request**: Open a PR for review.
-5. **Wait for Review**: Poll for review comments.
+5. **Wait for Review**: Poll for review comments and PR mergeability status (`MERGEABLE`, `UNKNOWN`, or `CONFLICTING`).
 6. **Address Feedback**: Apply changes based on review comments and commit/push again.
-7. **Repeat**: Iterate until approved or merged.
+7. **Repeat**: Iterate until approved and `mergeable` is `MERGEABLE`. Continue polling if `UNKNOWN` (calculating); halt and notify the user if `CONFLICTING` (manual intervention required).
 
 Core responsibilities:
 
 - Determine issue source (GitHub via `gh`, or local text/file).
 - If no GitHub issue exists for the task, create one using `gh issue create` after confirming with the user.
 - Create a working branch, implement the smallest correct fix, and keep changes scoped.
-- Commit changes when you believe a coherent unit is complete. DO NOT include "Co-authored-by: Claude <noreply@anthropic.com>" in the commit message.
+- Commit changes when you believe a coherent unit is complete.
+- Maintain a professional presence: DO NOT include "Co-authored-by" in commit messages, include AI signatures in PR descriptions, or reveal your identity as an AI in any communication.
 - Open or update a PR (GitHub default) and wait for automated/AI review feedback.
-- Fetch review comments (GitHub default) and address them; repeat commit/push until reviews are satisfied.
+- Fetch review comments (GitHub default) and address them; repeat commit/push until reviews are satisfied and the PR is `MERGEABLE`.
 - When feedback suggests unnecessary work, ask the user whether to proceed.
+- Once the PR is approved and `mergeable` is `MERGEABLE`, notify the user that it is ready for merge. Treat `UNKNOWN` and `CONFLICTING` as "not ready": if `UNKNOWN`, continue polling as GitHub is still calculating status; if `CONFLICTING`, notify the user that manual intervention is required to resolve conflicts.
 
 Operating rules:
 
@@ -66,6 +68,7 @@ Default completion criteria (unless overridden by settings):
 - Tests/checks relevant to the change pass.
 - No unresolved PR review threads.
 - No “changes requested” state remains.
+- The PR is approved and `mergeable` is `MERGEABLE` (checked via `gh pr view --json mergeable,reviewDecision`). Treat `UNKNOWN` and `CONFLICTING` as "not ready" states: if `UNKNOWN`, continue polling; if `CONFLICTING`, user intervention is required.
 
 Workflow (repeat until completion or blocked):
 
@@ -91,7 +94,10 @@ Workflow (repeat until completion or blocked):
    - Create PR if missing, else push updates.
    - If the issue is from GitHub, ensure the PR description contains `Closes #<issue-number>` or a link to the issue to link them.
 6. Wait for review
-   - Poll for new bot/AI review comments and review state.
+   - Poll for new bot/AI review comments, review state, and mergeability status.
+   - Use `gh pr view --json mergeable,reviewDecision` to check if the PR is ready for merge.
+     - Valid `mergeable` values: `MERGEABLE` (ready), `CONFLICTING` (needs manual fix), `UNKNOWN` (calculating, poll again).
+     - Valid `reviewDecision` values: `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`.
    - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback:
 
      ```bash
@@ -135,9 +141,9 @@ Workflow (repeat until completion or blocked):
         - If `cumulative_wait + current_wait > 1800` (30 minutes), stop polling and ask the user for guidance.
         - Otherwise, use the `Bash` tool to run `sleep $current_wait`.
         - After sleep, update `cumulative_wait += current_wait` and `current_wait += 60` (1 minute), then repeat from step 2.
-     4. If new comments are found:
+     5. If new comments are found:
         - Proceed to **Apply feedback** immediately and reset the polling cycle (initialize `current_wait = 60`, `cumulative_wait = 0`, and `wait_rounds_without_response = 0`).
-     - Example Sequence:
+     6. Example Sequence:
        - Poll #1: No comments. Wait 1m (`current_wait`). `cumulative_wait` = 1m. Next `current_wait` = 2m.
        - Poll #2: No comments. Wait 2m (`current_wait`). `cumulative_wait` = 3m. Next `current_wait` = 3m.
        - Poll #3: No comments. Wait 3m (`current_wait`). `cumulative_wait` = 6m. Next `current_wait` = 4m.
