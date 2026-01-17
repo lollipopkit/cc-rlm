@@ -1,6 +1,6 @@
 ---
 name: dev-loop-runner
-description: Use this agent when the user asks to "fix an issue and keep iterating until it can be merged", "auto commit and open a PR", "wait for AI code review comments and address them", or "run a dev loop". Examples:
+description: Use this agent when the user asks to "fix and keep iterating until it can be merged", "auto commit and open a PR", "wait for AI code review comments and address them", or "run a dev loop". Examples:
 
 <example>
 Context: User wants an automated fix→PR→review loop on GitHub.
