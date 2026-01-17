@@ -1,210 +1,125 @@
 ---
 name: recursive
-description: Recursive Reasoning - iteratively refine answers through multiple reasoning passes using Self-Refine, Reflexion, and Tree of Thoughts techniques. Use when asked to "think deeply", "refine iteratively", "use recursive reasoning", or when facing complex problems that benefit from multi-pass reasoning.
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__seq-think__sequentialthinking
+description: Master Recursive Reasoning - orchestrate complex problem solving by decomposing tasks and delegating to specialized sub-agents. Use when facing multi-step problems that benefit from planning, execution, and verification.
+allowed-tools: Read, Task, mcp__seq-think__sequentialthinking
 ---
 
-# Recursive Reasoning Skill
+# Master Recursive Reasoning Skill
 
-This skill implements state-of-the-art recursive reasoning techniques from research, including **Self-Refine**, **Reflexion**, and **Tree of Thoughts** principles.
+This skill implements a Master/Sub-Agent architecture for recursive reasoning. The Master acts as the "Brain" (Planner/Coordinator/Verifier), while Sub-Agents act as the "Hands" (Executors).
+
+## Master Orchestrator Role
+
+As the Master, you primarily focus on high-level orchestration. You:
+1. **Plan**: Decompose the problem into logical, sequential steps.
+2. **Delegate**: Use the `Task` tool to launch `recursive-executor` agents for each step.
+3. **Verify**: Review the output of each sub-agent against the requirements.
+4. **Refine**: If a sub-agent's output is insufficient, re-delegate with specific feedback.
+5. **Synthesize**: Combine all verified components into a final solution.
 
 ## Theoretical Foundation
 
-Recursive reasoning synthesizes multiple research paradigms:
-
-| Technique | Core Idea | Source |
-| ----------- | ----------- | -------- |
-| **Self-Refine** | Single LLM acts as generator, critic, and refiner iteratively | Madaan et al. 2023 |
-| **Reflexion** | Maintain reflective memory buffer across iterations | Shinn et al. 2023 |
-| **Tree of Thoughts** | Explore multiple reasoning branches with backtracking | Yao et al. 2023 |
-| **Self-Consistency** | Sample diverse paths, select most consistent answer | Wang et al. 2023 |
-| **Constitutional AI** | Principle-guided self-critique and revision | Anthropic 2022 |
-| **Least-to-Most** | Decompose complex problems into sequential subproblems | Zhou et al. 2022 |
+The Master utilizes these techniques for orchestration:
+- **Least-to-Most**: Decomposing complex problems into sequential subproblems.
+- **Reflexion**: Maintaining a reflective memory buffer to guide sub-agents.
+- **Self-Refine**: Iteratively critiquing sub-agent outputs until they meet quality standards.
+- **Tree of Thoughts**: Exploring different delegation strategies when one fails.
 
 ## Workflow Phases
 
 ### Phase 1: Problem Decomposition (Least-to-Most)
 
-Before solving, break complex problems into manageable subproblems:
+Before any execution, break the problem into manageable subproblems:
 
 ```markdown
-## 📋 Problem Decomposition
+## 📋 Master Execution Plan
 
 **Original Problem**: [Complex task]
 
-**Subproblems** (solve in order):
-1. [Foundational subproblem] → enables 2, 3
-2. [Intermediate subproblem] → enables 3
-3. [Final subproblem] → produces solution
+**Execution Steps**:
+1. [Foundational task] → Delegate to recursive-executor
+2. [Intermediate task] → Delegate to recursive-executor
+3. [Final task] → Delegate to recursive-executor
 
 **Dependencies**: 1 → 2 → 3
 ```
 
-### Phase 2: Iterative Refinement Loop (Self-Refine)
+### Phase 2: Delegation Loop (Master -> Sub-Agent)
 
-For each iteration, act as three roles:
+For each step in your plan:
+1. Call the `Task` tool with `agent: "recursive-executor"`.
+2. Provide the sub-task description and any necessary context from previous steps.
+3. Wait for the sub-agent to report completion.
 
-1. **Generator**: Produce current best solution
-2. **Critic**: Evaluate against success criteria
-3. **Refiner**: Apply targeted improvements
+### Phase 3: Verification & Critique (Self-Refine)
 
-### Phase 3: Reflection Memory (Reflexion)
+When a sub-agent returns:
+1. **Evaluate**: Check if the result is correct, complete, and optimal.
+2. **Critique**: Identify specific issues or missing details.
+3. **Re-delegate**: If issues are found, send a new `Task` to the sub-agent with the critique and request refinement.
 
-Maintain a **memory buffer** of insights across iterations:
+### Phase 4: Reflection Memory (Reflexion)
 
-```markdown
-## 🧠 Reflection Memory
-
-| Iteration | Key Insight | Action Taken |
-|-----------|-------------|--------------|
-| 1 | Missed edge case X | Added validation |
-| 2 | Algorithm inefficient | Switched to O(n) |
-| 3 | API misused | Checked documentation |
-```
-
-This memory prevents repeating mistakes and compounds learning.
-
-### Phase 4: Branching Exploration (Tree of Thoughts)
-
-When facing uncertainty, explore multiple paths:
+Maintain a memory of sub-agent performance and task outcomes:
 
 ```markdown
-## 🌳 Reasoning Branches
+## 🧠 Master Reflection Memory
 
-**Decision Point**: [What approach to take?]
-
-### Branch A: [Approach 1]
-- Pros: ...
-- Cons: ...
-- Confidence: X/10
-
-### Branch B: [Approach 2]
-- Pros: ...
-- Cons: ...
-- Confidence: X/10
-
-**Selected**: Branch [A/B] because [reasoning]
-**Backtrack if**: [conditions that would trigger reconsideration]
+| Step | Sub-Agent Result | Master Insight | Action |
+|------|------------------|----------------|--------|
+| 1 | Success | Path X is correct | Proceed to 2 |
+| 2 | Failed initially | Tool Y was missing | Retried with Y |
 ```
 
-### Phase 5: Self-Consistency Check
+### Phase 5: Synthesis
 
-Before finalizing, verify consistency across reasoning paths:
-
-```markdown
-## ✓ Consistency Verification
-
-**Multiple Reasoning Paths**:
-1. Path via [method A] → Result: X
-2. Path via [method B] → Result: X
-3. Path via [method C] → Result: Y (outlier)
-
-**Consensus**: X (2/3 paths agree)
-**Outlier Analysis**: Path C failed because [reason]
-```
+Integrate the results from all sub-tasks into a final coherent answer for the user.
 
 ## Output Format
 
-### Per-Iteration Structure
+### Per-Delegation Structure
 
 ```markdown
-## 🔄 Iteration [N]
+## 🔄 Delegation [N]
 
-### 💡 Current Solution
-[Your current best answer]
+### 📥 Sub-Task
+[Description of what was delegated]
 
-### 🔍 Self-Critique (Constitutional Principles)
-- [ ] **Correctness**: Is it factually accurate?
-- [ ] **Completeness**: Are all requirements addressed?
-- [ ] **Clarity**: Is it easy to understand?
-- [ ] **Efficiency**: Is it optimal?
-- [ ] **Safety**: Are there security/edge case issues?
+### 📤 Sub-Agent Report
+[Summary of the sub-agent's output]
 
-**Identified Issues**:
-1. [Issue 1]: [Severity: High/Medium/Low]
-2. [Issue 2]: [Severity: High/Medium/Low]
+### 🔍 Master Verification
+- [ ] **Correctness**: [OK/Fail]
+- [ ] **Completeness**: [OK/Fail]
+- [ ] **Quality**: [1-10]
 
-### 📝 Reflection (→ Memory Buffer)
-> [Key insight from this iteration to remember]
-
-### 🔧 Refinement Plan
-| Priority | Improvement | Expected Impact |
-|----------|-------------|-----------------|
-| 1 | [Change 1] | [Impact] |
-| 2 | [Change 2] | [Impact] |
-
-### 📊 Metrics
-- **Confidence**: [1-10]
-- **Completeness**: [%]
-- **Quality Delta**: [+X% from previous]
-
----
+**Master Decision**: [Proceed / Re-delegate with critique]
 ```
 
 ### Final Output Structure
 
 ```markdown
-## ✅ Final Answer
+## ✅ Final Verified Solution
 
-[Refined solution]
+[The integrated final answer]
 
-### 📈 Evolution Summary
+### 📈 Orchestration Summary
 
-| Iter | Technique Used | Key Change | Confidence |
-|------|----------------|------------|------------|
-| 1 | Generate | Initial attempt | 4/10 |
-| 2 | Self-Refine | Fixed [issue] | 6/10 |
-| 3 | ToT Branch | Explored alt. | 7/10 |
-| 4 | Consistency | Verified paths | 9/10 |
+| Step | Agent | Status | Refinements |
+|------|-------|--------|-------------|
+| 1 | recursive-executor | Completed | 0 |
+| 2 | recursive-executor | Completed | 1 |
 
 ### 🧠 Accumulated Insights
-[Key learnings from reflection memory]
-
-### ⚠️ Remaining Considerations
-[Any caveats, edge cases, or future improvements]
+[Key learnings from the orchestration process]
 ```
 
 ## Stopping Criteria
 
-Stop iterating when ANY of these are met:
-
-1. **Confidence threshold**: ≥ 8/10
-2. **Diminishing returns**: Quality delta < 5% for 2 consecutive iterations
-3. **Consistency achieved**: Multiple reasoning paths converge
-4. **Max iterations**: Reached limit (default: 5)
-5. **Perfect score**: All constitutional principles satisfied
-
-## Mode Selection Guide
-
-| Problem Type | Recommended Mode | Iterations |
-| -------------- | ------------------ | ------------ |
-| Simple bug fix | Light Recursive | 2 |
-| Algorithm design | Full Recursive | 3-4 |
-| Architecture decision | Full Recursive + ToT | 4-5 |
-| Creative/open-ended | Full Recursive + Branching | 5+ |
-| Mission-critical code | Full Recursive + Consistency | 5+ |
-
-## Trigger Phrases
-
-- "Use recursive reasoning to solve this"
-- "Think recursively about..."
-- "Refine this iteratively"
-- "Deep think mode"
-- "Multi-pass reasoning"
-- "Self-refine this solution"
-- "Explore multiple approaches"
+1. **Plan Completed**: All steps in the Master plan are executed and verified.
+2. **Confidence**: Overall solution confidence ≥ 8/10.
+3. **Diminishing Returns**: Sub-agent refinements no longer yield significant quality gains.
 
 ## Integration with Sequential Thinking
 
-For maximum depth, combine Recursive Reasoning with `mcp__seq-think__sequentialthinking`:
-
-- **Sequential Thinking**: Micro-level step-by-step reasoning within each phase
-- **Recursive Reasoning**: Macro-level iterative refinement across phases
-
-```text
-Recursive Iteration 1
-  └── Sequential Thinking (steps 1-5)
-Recursive Iteration 2
-  └── Sequential Thinking (steps 1-7)
-...
-```
+Use `mcp__seq-think__sequentialthinking` internally to build your plans and analyze sub-agent reports before making decisions.

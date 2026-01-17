@@ -6,12 +6,13 @@ A Claude Code plugin that implements state-of-the-art recursive reasoning techni
 
 ## Features
 
-- **Self-Refine**: Generate → Critique → Refine loop (~20% improvement)
-- **Reflexion**: Maintain memory buffer across iterations
-- **Tree of Thoughts**: Multi-branch exploration with backtracking
-- **Self-Consistency**: Sample diverse paths, select consensus
-- **Multi-Model Collaboration**: Judge/Critique across different LLMs
-- **Least-to-Most**: Problem decomposition into subproblems
+- **Master/Sub-Agent Architecture**: Formal hierarchy with a Master Planner/Orchestrator and specialized Sub-Agents for execution.
+- **Self-Refine**: Generate → Critique → Refine loop orchestrated by the Master.
+- **Reflexion**: Maintain memory buffer across delegations.
+- **Tree of Thoughts**: Multi-branch exploration with backtracking.
+- **Self-Consistency**: Sample diverse paths, select consensus.
+- **Multi-Model Collaboration**: Judge/Critique across different LLMs.
+- **Least-to-Most**: Problem decomposition into subproblems.
 
 ## Installation
 
@@ -58,14 +59,13 @@ For stable and explicit triggering, use the slash commands:
 ```text
 User: Use recursive reasoning to design a rate limiter algorithm
 
-Claude: [Applies recursive reasoning workflow]
-- Phase 1: Decompose problem
-- Phase 2: Generate initial solution
-- Phase 3: Self-critique against principles
-- Phase 4: Explore alternative branches
-- Phase 5: Refine and iterate
-- Phase 6: Verify consistency
-- Final: Synthesized answer with evolution summary
+Claude: [Applies Master/Sub-Agent workflow]
+- Phase 1: Decompose problem into sub-tasks (Planning)
+- Phase 2: Delegate Task 1 to recursive-executor (Execution)
+- Phase 3: Verify sub-agent output (Verification)
+- Phase 4: Delegate Task 2 with context...
+- Phase 5: Final Synthesis and Verification
+- Final: Polished answer with orchestration summary
 ```
 
 ## Mode Selection

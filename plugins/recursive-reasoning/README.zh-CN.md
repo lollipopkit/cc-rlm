@@ -6,8 +6,9 @@
 
 ## 特性
 
-- **Self-Refine**：生成 → 批判 → 改进 的循环（~20% 提升）
-- **Reflexion**：在多轮迭代中维护反思记忆
+- **Master/Sub-Agent Architecture**：正式的 主/从 代理架构。主代理（Master）负责规划、协调与验证，从代理（Sub-Agent）负责具体任务执行。
+- **Self-Refine**：生成 → 批判 → 改进 的循环（由 Master 编排）
+- **Reflexion**：在任务委派中维护反思记忆
 - **Tree of Thoughts**：多分支探索与回溯
 - **Self-Consistency**：采样多条推理路径并选择一致结论
 - **Multi-Model Collaboration**：多模型协同评审与批判
@@ -58,14 +59,13 @@
 ```text
 User: Use recursive reasoning to design a rate limiter algorithm
 
-Claude: [Applies Recursive Reasoning workflow]
-- Phase 1: Decompose problem
-- Phase 2: Generate initial solution
-- Phase 3: Self-critique against principles
-- Phase 4: Explore alternative branches
-- Phase 5: Refine and iterate
-- Phase 6: Verify consistency
-- Final: Synthesized answer with evolution summary
+Claude: [采用 Master/Sub-Agent 工作流]
+- Phase 1: 分解问题为子任务 (规划)
+- Phase 2: 委派任务 1 给 recursive-executor (执行)
+- Phase 3: 验证从代理输出 (验证)
+- Phase 4: 携带上下文委派任务 2...
+- Phase 5: 最终综合与验证
+- Final: 经过验证的最终答案及编排摘要
 ```
 
 ## 模式选择

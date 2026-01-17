@@ -1,21 +1,22 @@
 ---
-description: Invoke recursive-reasoning for iterative multi-pass reasoning
+description: Master orchestrator for iterative multi-pass reasoning using Sub-Agents
 argument-hint: [problem or question]
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__seq-think__sequentialthinking
+allowed-tools: Read, Task, mcp__seq-think__sequentialthinking
 ---
 
-# Recursive Command
+# Recursive Command (Master)
 
-Use the **recursive** skill to solve this problem through iterative refinement using Self-Refine, Reflexion, and Tree of Thoughts techniques.
+Use the **recursive** skill to solve complex problems by orchestrating a team of specialized sub-agents. As the Master agent, you will plan the strategy, delegate tasks, and verify the results.
 
 ## Problem
 
 $ARGUMENTS
 
-## Instructions
+## Master Orchestration Flow
 
-1. Follow the Recursive execution flow: Decompose → Generate → Critique → Reflect → Refine → Synthesize
-2. Maintain a reflection memory buffer across iterations
-3. Use the per-iteration output format with confidence metrics
-4. Stop when confidence reaches 8/10 or diminishing returns occur
-5. Provide the final answer with evolution summary
+1. **Decompose**: Break the problem into a sequential execution plan.
+2. **Delegate**: Use the `Task` tool to launch `recursive-executor` sub-agents for each step.
+3. **Verify**: Critique and verify the output of each sub-agent.
+4. **Reflect**: Maintain a reflection memory buffer across delegations.
+5. **Synthesize**: Integrate all sub-task results into a final, polished answer.
+6. **Confidence**: Stop when confidence reaches 8/10 or diminishing returns occur.
