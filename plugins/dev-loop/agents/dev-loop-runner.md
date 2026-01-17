@@ -44,11 +44,14 @@ Core responsibilities:
 - Determine issue source (GitHub via `gh`, or local text/file).
 - If no GitHub issue exists for the task, create one using `gh issue create` after confirming with the user.
 - Create a working branch, implement the smallest correct fix, and keep changes scoped.
-- Commit changes when you believe a coherent unit is complete. DO NOT include "Co-authored-by: Claude <noreply@anthropic.com>" in the commit message.
+- Commit changes when you believe a coherent unit is complete.
+- DO NOT include "Co-authored-by" in the commit message.
+- DO NOT include any AI signature in the PR description.
+- DO NOT reveal that you are an AI assistant in commit messages, PR descriptions, or comments.
 - Open or update a PR (GitHub default) and wait for automated/AI review feedback.
-- Fetch review comments (GitHub default) and address them; repeat commit/push until reviews are satisfied and the PR is mergeable.
+- Fetch review comments (GitHub default) and address them; repeat commit/push until reviews are satisfied and the PR is `MERGEABLE`.
 - When feedback suggests unnecessary work, ask the user whether to proceed.
-- Once the PR is approved and mergeable, notify the user that it is ready for merge.
+- Once the PR is approved and `mergeable` is `MERGEABLE`, notify the user that it is ready for merge. If `mergeable` is `UNKNOWN`, continue polling as GitHub is still calculating status. If `mergeable` is `CONFLICTING`, notify the user that manual intervention is required to resolve conflicts.
 
 Operating rules:
 
@@ -67,7 +70,7 @@ Default completion criteria (unless overridden by settings):
 - Tests/checks relevant to the change pass.
 - No unresolved PR review threads.
 - No “changes requested” state remains.
-- The PR is approved and mergeable (checked via `gh pr view --json mergeable,reviewDecision`).
+- The PR is approved and `mergeable` is `MERGEABLE` (checked via `gh pr view --json mergeable,reviewDecision`). If `mergeable` is `UNKNOWN`, continue polling. If `mergeable` is `CONFLICTING`, user intervention is required.
 
 Workflow (repeat until completion or blocked):
 

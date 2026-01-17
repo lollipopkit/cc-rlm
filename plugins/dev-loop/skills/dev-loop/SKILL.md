@@ -19,8 +19,10 @@ Run an iterative workflow that takes an issue/task input and drives it to a merg
 4. **Pull Request**: Open a PR for review.
 5. **Wait for Review**: Poll for AI or human review comments and PR mergeability status.
 6. **Address Feedback**: Apply changes based on review comments and commit/push again.
-7. **Repeat**: Iterate through cycles of review and feedback until the PR is approved and mergeable, or merged.
-Once approved and mergeable, notify the user.
+7. **Repeat**: Iterate through cycles of review and feedback until the PR is approved and `mergeable` is `MERGEABLE`, or merged.
+   - Once approved and `mergeable` is `MERGEABLE`, notify the user.
+   - If `mergeable` is `UNKNOWN`, continue polling as GitHub is calculating status.
+   - If `mergeable` is `CONFLICTING`, notify the user that manual intervention is required.
 
 ## Inputs
 
