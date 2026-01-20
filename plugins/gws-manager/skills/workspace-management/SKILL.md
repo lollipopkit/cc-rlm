@@ -14,17 +14,17 @@ The `gws` CLI tool provides isolated development environments using `git worktre
 
 When starting a complex task (e.g., a large refactor or a new feature), create a dedicated workspace to isolate changes:
 
-1.  Generate a workspace name if not provided (e.g., `feat-auth` or `refactor-db`).
-2.  Run `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh new <name> --agent <agent-id> --task <task-description> --json`.
-3.  Note the returned path for the workspace.
+1. Generate a workspace name if not provided (e.g., `feat-auth` or `refactor-db`).
+2. Run `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh new <name> --agent <agent-id> --task <task-description> --json`.
+3. Note the returned path for the workspace.
 
 ### 2. Managing Advisory Locks
 
 Prevent conflicts by locking the paths being modified:
 
--   Before modifying files, check existing locks: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh locks --json`.
--   Lock the target directory or files: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh lock "<pattern>" --owner <agent-id> --ws <workspace-name> --json`.
--   Unlock after completion: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh unlock "<pattern>" --owner <agent-id> --json`.
+- Before modifying files, check existing locks: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh locks --json`.
+- Lock the target directory or files: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh lock "<pattern>" --owner <agent-id> --ws <workspace-name> --json`.
+- Unlock after completion: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh unlock "<pattern>" --owner <agent-id> --json`.
 
 Patterns can be specific files (`src/main.go`) or directory globs (`src/**`).
 
@@ -32,15 +32,15 @@ Patterns can be specific files (`src/main.go`) or directory globs (`src/**`).
 
 Once the task is complete within the workspace:
 
-1.  Ensure the integration workspace is ready: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh ensure-integration --json`.
-2.  Integrate the workspace changes: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh integrate <name> --mode merge --run "go test ./..." --json`.
-3.  Resolve any conflicts in the `integration` workspace directory.
+1. Ensure the integration workspace is ready: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh ensure-integration --json`.
+2. Integrate the workspace changes: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh integrate <name> --mode merge --run "go test ./..." --json`.
+3. Resolve any conflicts in the `integration` workspace directory.
 
 ## Best Practices
 
--   **Path Isolation**: Always work within the workspace path returned by `./gws new`.
--   **Locking**: Prefer locking broad patterns (e.g., `pkg/auth/**`) early in the task.
--   **Clean up**: Use `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh rm <name>` or `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh prune` to remove completed workspaces.
+- **Path Isolation**: Always work within the workspace path returned by `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh new`.
+- **Locking**: Prefer locking broad patterns (e.g., `pkg/auth/**`) early in the task.
+- **Clean up**: Use `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh rm <name>` or `bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh prune` to remove completed workspaces.
 
 ## Configuration
 

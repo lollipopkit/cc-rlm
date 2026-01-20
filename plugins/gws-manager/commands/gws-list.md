@@ -5,6 +5,7 @@ allowed-tools: Bash, Read
 ---
 
 List existing workspaces:
+
 ```bash
 bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh ls --json
 ```

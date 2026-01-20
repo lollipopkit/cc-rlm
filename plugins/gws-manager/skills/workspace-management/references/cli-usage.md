@@ -8,6 +8,7 @@ When running manually from the project root, you can use `./gws <command> [args]
 ## Commands
 
 ### `gws new <name>`
+
 Creates a new worktree and branch.
 - `--agent`: ID of the agent creating the workspace.
 - `--task`: Short description of the task.
@@ -15,18 +16,22 @@ Creates a new worktree and branch.
 - `--json`: Output result as JSON.
 
 ### `gws ls`
+
 Lists all workspaces.
 - `--json`: Output full details as JSON.
 
 ### `gws rm <name>`
+
 Removes a workspace and its associated worktree.
 - `--json`: Output result as JSON.
 
 ### `gws prune`
+
 Prunes metadata for workspaces that no longer exist on disk.
 - `--json`: Output result as JSON.
 
 ### `gws lock <pattern>`
+
 Locks a path pattern.
 - `--owner`: ID of the lock owner.
 - `--ws`: Name of the workspace.
@@ -34,20 +39,24 @@ Locks a path pattern.
 - `--json`: Output result as JSON.
 
 ### `gws unlock <pattern>`
+
 Unlocks a path pattern.
 - `--owner`: ID of the lock owner.
 - `--json`: Output result as JSON.
 
 ### `gws locks`
+
 Lists all active locks.
 - `--json`: Output result as JSON.
 
 ### `gws ensure-integration`
+
 Ensures that the `integration` workspace is initialized and up to date with the base branch.
 - `--from`: Base branch/commit to track (default: `origin/HEAD`).
 - `--json`: Output result as JSON.
 
 ### `gws integrate <name>`
+
 Integrates workspace branch into the `integration` branch.
 - `--mode`: `merge` or `rebase`.
 - `--run`: Optional command to run after integration (e.g., tests).
@@ -55,9 +64,11 @@ Integrates workspace branch into the `integration` branch.
 - `--json`: Output result as JSON.
 
 ### `gws status`
+
 Shows the status of the current workspace and active locks.
 - `--json`: Output result as JSON.
 
 ### `gws doctor`
+
 Performs health checks on the environment and `gws` configuration.
 - `--json`: Output result as JSON.

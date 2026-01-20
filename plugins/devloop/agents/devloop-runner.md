@@ -109,8 +109,8 @@ Workflow (repeat until completion or blocked):
    - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
      - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
    - If validation fails, repeat the Implementation/Validation sub-tasks (up to 3 times) before asking the user for guidance.
-   - If `workspace_mode` is `"gws"` and implementation is successful:
-     - Use `gws unlock <pattern>` to release locks.
+   - If `workspace_mode` is `"gws"`:
+     - ALWAYS release locks using `gws unlock <pattern>` on all exit paths (success, validation failure, abort, or after max retries).
    - If the working tree is dirty:
      - First run `git status` to identify uncommitted changes.
      - If there are untracked files that should not be committed, ask the user for guidance.

@@ -6,7 +6,9 @@ allowed-tools: Bash, Read
 ---
 
 Remove workspace:
+
 1. Run rm command:
+
    ```bash
    bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh rm $ARGUMENTS --json
    ```
