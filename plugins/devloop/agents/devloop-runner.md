@@ -104,13 +104,16 @@ Workflow (repeat until completion or blocked):
 3. Implement fix
    - If `workspace_mode` is `"gws"`:
      - Use `gws lock <pattern>` to lock relevant files or directories before modification.
-   - **Delegate Implementation**: Use the `Task` tool to invoke `devloop-implementer`. Provide the issue description and context.
-     - *Instruction*: "Research and implement the smallest correct fix for: [Issue Description]"
-   - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
-     - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
-   - If validation fails, repeat the Implementation/Validation sub-tasks (up to 3 times) before asking the user for guidance.
-   - If `workspace_mode` is `"gws"`:
-     - ALWAYS release locks using `gws unlock <pattern>` on all exit paths (success, validation failure, abort, or after max retries).
+   - **Implementation & Validation Workflow**:
+     - **Delegate Implementation**: Use the `Task` tool to invoke `devloop-implementer`. Provide the issue description and context.
+       - *Instruction*: "Research and implement the smallest correct fix for: [Issue Description]"
+     - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
+       - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
+     - If validation fails, repeat the Implementation/Validation sub-tasks (up to 3 times) before asking the user for guidance.
+   - **Robust Unlocking (CRITICAL)**:
+     - If `workspace_mode` is `"gws"`:
+       - **ALWAYS** release locks using `gws unlock <pattern>` on ALL exit paths (success, validation failure, abort, or after max retries).
+       - You MUST call `gws unlock <pattern>` in each error branch and before any early exit or return to the user.
    - If the working tree is dirty:
      - First run `git status` to identify uncommitted changes.
      - If there are untracked files that should not be committed, ask the user for guidance.
