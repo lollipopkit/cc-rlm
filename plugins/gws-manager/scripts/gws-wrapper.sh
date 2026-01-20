@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Find gws binary: 1. project root, 2. system PATH
+# Find gws binary: 1. project root, 2. primary worktree root, 3. system PATH
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PRIMARY_ROOT="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null | xargs dirname 2>/dev/null || echo "$ROOT")"
 LOCAL_GWS="$ROOT/gws"
+PRIMARY_GWS="$PRIMARY_ROOT/gws"
 
 # Determine module path for build hint
 MODULE_PATH="."
@@ -13,6 +15,8 @@ fi
 
 if [[ -x "$LOCAL_GWS" ]]; then
   exec "$LOCAL_GWS" "$@"
+elif [[ -x "$PRIMARY_GWS" ]]; then
+  exec "$PRIMARY_GWS" "$@"
 elif command -v gws >/dev/null 2>&1; then
   exec gws "$@"
 else
