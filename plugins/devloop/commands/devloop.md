@@ -23,13 +23,16 @@ Run the devloop workflow using the plugin components in this plugin. This comman
 ## Behavior
 
 1. **Determine the issue source**:
+
    - If the argument looks like a GitHub URL or issue/PR number, use `gh` to fetch title/body, labels, repo, and existing PR linkage.
    - When NO argument is provided, or if starting on a non-base branch, use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to check for an existing PR associated with the current branch.
    - Should NO argument be provided and NO existing PR is found, the agent will prompt for a task description or offer to create a new issue.
    - If the argument looks like a local file path, read it and treat it as the issue/task description.
    - Otherwise, treat it as a free-form text task.
    - For cases where a text task or local file is provided and no GitHub issue exists, the agent will offer to create one to track the work.
+
 2. **Read settings** from `.claude/devloop.local.md` if present. Supported fields in YAML frontmatter:
+
    - `enabled: true|false`
    - `base_branch: "main"`
    - `review_mode: "github"|"local-agent"|"custom"`
@@ -43,6 +46,8 @@ Run the devloop workflow using the plugin components in this plugin. This comman
    - `notify_shell: "auto"|"bash"|"fish"`
    - `notify_on_stop: true|false`
    - `notify_command_template: "..."`
+   - `workspace_mode: "gws"|"local"` (set to `"gws"` for `git-ws` integration)
+
 3. **Invoke the loop agent** `devloop-runner` to execute the full fix/review cycle.
 
 ## Rules & Safety

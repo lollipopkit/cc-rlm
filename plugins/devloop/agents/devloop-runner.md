@@ -69,7 +69,8 @@ Operating rules:
 Settings:
 
 - Read `.claude/devloop.local.md` if present in the project root.
-- Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits).
+- Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits, workspace_mode).
+  - `workspace_mode`: set to `"gws"` to enable integration with `git-ws` for isolated workspaces and locking.
 
 Default completion criteria (unless overridden by settings):
 
@@ -92,16 +93,32 @@ Workflow (repeat until completion or blocked):
    - Additionally, if on a non-base branch: also check for an existing PR associated with the current branch.
    - Capture target base branch (default `main`).
 2. Create or resume branch
-   - If a PR already exists for this issue, check out its branch.
-   - Else if the current branch is the base branch (default `main`), create a new branch named `devloop-<id>-<slug>`.
-     - **Branch Sanitization**: Ensure the `<slug>` is derived from the issue title by converting it to lowercase, replacing spaces and special characters with hyphens, and removing consecutive hyphens.
-   - Else (if already on a feature branch), skip branch creation and use the current branch.
+   - If `workspace_mode` is `"gws"`:
+     - Use `gws new <branch-name>` to create a new isolated workspace (worktree).
+     - Switch all subsequent operations to the workspace path returned by `gws`.
+   - Else:
+     - If a PR already exists for this issue, check out its branch.
+     - Else if the current branch is the base branch (default `main`), create a new branch named `devloop-<id>-<slug>`.
+       - **Branch Sanitization**: Ensure the `<slug>` is derived from the issue title by converting it to lowercase, replacing spaces and special characters with hyphens, and removing consecutive hyphens.
+     - Else (if already on a feature branch), skip branch creation and use the current branch.
 3. Implement fix
-   - **Delegate Implementation**: Use the `Task` tool to invoke `devloop-implementer`. Provide the issue description and context.
-     - *Instruction*: "Research and implement the smallest correct fix for: [Issue Description]"
-   - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
-     - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
-   - If validation fails, repeat the Implementation/Validation sub-tasks (up to 3 times) before asking the user for guidance.
+   - If `workspace_mode` is `"gws"`:
+     - Choose a lock target (a `<pattern>` for the files/directories you expect to modify).
+     - Use `gws lock <pattern>` to lock relevant files or directories before modification.
+   - **Implementation & Validation Workflow** (up to 3 attempts):
+     - **Delegate Implementation**: Use the `Task` tool to invoke `devloop-implementer`. Provide the issue description and context.
+       - *Instruction*: "Research and implement the smallest correct fix for: [Issue Description]"
+     - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
+       - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
+     - If validation fails:
+       - If `workspace_mode` is `"gws"`, run `gws unlock <pattern>` **before retrying or exiting**.
+       - If retrying, re-acquire the lock with `gws lock <pattern>` before delegating the next implementation attempt.
+     - If validation fails 3 times (max retries):
+       - If `workspace_mode` is `"gws"`, run `gws unlock <pattern>` before asking the user for guidance or returning.
+   - **Robust Unlocking (CRITICAL)**:
+     - If `workspace_mode` is `"gws"`:
+       - **ALWAYS** release locks using `gws unlock <pattern>` on ALL exit paths (success, validation failure, abort, or after max retries).
+       - You MUST call `gws unlock <pattern>` in each error branch and before any early exit or return to the user.
    - If the working tree is dirty:
      - First run `git status` to identify uncommitted changes.
      - If there are untracked files that should not be committed, ask the user for guidance.

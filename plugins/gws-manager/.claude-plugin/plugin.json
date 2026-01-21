@@ -1,0 +1,11 @@
+{
+  "name": "gws-manager",
+  "version": "0.1.0",
+  "description": "Manage parallel development workspaces and advisory locks using the gws CLI tool",
+  "author": {
+    "name": "lollipopkit"
+  },
+  "commands": "./commands",
+  "skills": "./skills",
+  "hooks": "./hooks/hooks.json"
+}

@@ -1,0 +1,28 @@
+{
+  "description": "Workspace management hooks",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate if the current task involves significant architectural changes, refactoring, or a new feature implementation based on the user's intent and the tool input. If the task is complex and no parallel workspace (git worktree) is currently active, suggest that the user create one using '/gws:new' to isolate changes. Return 'approve' if it's a minor change, or 'ask' with a suggestion to use a workspace if it looks like a major task. The tool input is available via stdin."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh doctor --json",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
