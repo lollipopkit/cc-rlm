@@ -21,6 +21,6 @@ elif command -v gws >/dev/null 2>&1; then
   exec gws "$@"
 else
   echo "Error: 'gws' binary not found in project root or PATH."
-  echo "Please build it using: go build -o gws ${MODULE_PATH}/cmd/gws"
+  echo "Please go install github.com/lollipopkit/gws/cmd/gws@latest"
   exit 6
 fi

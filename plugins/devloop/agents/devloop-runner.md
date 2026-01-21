@@ -103,13 +103,18 @@ Workflow (repeat until completion or blocked):
      - Else (if already on a feature branch), skip branch creation and use the current branch.
 3. Implement fix
    - If `workspace_mode` is `"gws"`:
+     - Choose a lock target (a `<pattern>` for the files/directories you expect to modify).
      - Use `gws lock <pattern>` to lock relevant files or directories before modification.
-   - **Implementation & Validation Workflow**:
+   - **Implementation & Validation Workflow** (up to 3 attempts):
      - **Delegate Implementation**: Use the `Task` tool to invoke `devloop-implementer`. Provide the issue description and context.
        - *Instruction*: "Research and implement the smallest correct fix for: [Issue Description]"
      - **Delegate Validation**: After implementation, use the `Task` tool to invoke `devloop-validator`.
        - *Instruction*: "Validate the changes made to resolve: [Issue Description]. Run relevant tests and report results."
-     - If validation fails, repeat the Implementation/Validation sub-tasks (up to 3 times) before asking the user for guidance.
+     - If validation fails:
+       - If `workspace_mode` is `"gws"`, run `gws unlock <pattern>` **before retrying or exiting**.
+       - If retrying, re-acquire the lock with `gws lock <pattern>` before delegating the next implementation attempt.
+     - If validation fails 3 times (max retries):
+       - If `workspace_mode` is `"gws"`, run `gws unlock <pattern>` before asking the user for guidance or returning.
    - **Robust Unlocking (CRITICAL)**:
      - If `workspace_mode` is `"gws"`:
        - **ALWAYS** release locks using `gws unlock <pattern>` on ALL exit paths (success, validation failure, abort, or after max retries).

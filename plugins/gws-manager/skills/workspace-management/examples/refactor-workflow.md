@@ -38,6 +38,13 @@ Switch to the workspace directory and perform the refactoring.
 2. Implement the new connection pool logic.
 3. Update callers in `cmd/server/`.
 4. Run local tests within the workspace.
+5. Release the advisory lock before integration.
+
+   ```bash
+   bash ${CLAUDE_PLUGIN_ROOT}/scripts/gws-wrapper.sh unlock "internal/db/**" \
+     --owner "claude-refactor-1" \
+     --json
+   ```
 
 ## Step 4: Verification
 

@@ -51,10 +51,12 @@ The plugin supports per-project configuration via `.claude/gws-manager.local.md`
 ### Reference Files
 
 For detailed CLI usage and schemas, consult:
+
 - **`references/cli-usage.md`** - Detailed command descriptions and flags.
 - **`references/json-schema.md`** - JSON output structure for machine parsing.
 
 ### Example Files
 
 Working examples in `examples/`:
+
 - **`refactor-workflow.md`** - Step-by-step refactoring workflow using `gws`.
