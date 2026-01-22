@@ -72,7 +72,7 @@ Settings:
 - Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits, workspace_mode).
   - `review_mode`:
     - `"github"` (default): Poll for GitHub review comments.
-    - `"coderabbit"`: Proactively trigger review using `coderabbit:review` (or `coderabbit:code-review`) skill.
+    - `"coderabbit"`: Proactively trigger review using the `coderabbit:review` skill.
     - `"local-agent"` / `"custom"`: Placeholder for other modes.
   - `workspace_mode`: set to `"gws"` to enable integration with `git-ws` for isolated workspaces and locking.
 
@@ -147,7 +147,7 @@ Workflow (repeat until completion or blocked):
         - Ensure `ping_threshold` is at least 1. If not, default it to 3.
      3. **Review Round**:
         - If `review_mode` is `"coderabbit"`:
-          - Use the `Skill` tool to call `coderabbit:review` (or `coderabbit:code-review`).
+          - Use the `Skill` tool to call `coderabbit:review`.
           - Analyze the output for findings or suggestions.
           - If findings are present, treat them as new review feedback and proceed to **Apply feedback**.
           - If no findings are found, proceed to standard polling of GitHub (for CI status or manual approvals).
