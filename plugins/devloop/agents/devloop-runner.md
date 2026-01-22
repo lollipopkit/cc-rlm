@@ -41,7 +41,16 @@ You MUST strictly follow this sequence:
 
 Core responsibilities:
 
-- Determine issue source (GitHub via `gh`, or local text/file).
+- Determine issue source (GitHub via `gh`, Feishu/Lark Project issue URL/identifier, or local text/file).
+- If a Feishu/Lark Project issue is provided:
+  - Parse `base_url`, `project_key`, `work_item_type_key`, `work_item_id` from the URL/identifier.
+    - Common URL format: `https://project.feishu.cn/<project_key>/<work_item_type>/detail/<work_item_id>` (example: `.../story/detail/123`).
+  - Auth via Project OpenAPI headers:
+    - `X-PLUGIN-TOKEN`: plugin token (p-...) obtained from `POST {base_url}/open_api/authen/plugin_token` using `{ "plugin_id": "...", "plugin_secret": "..." }`.
+    - `X-USER-KEY`: optional; some endpoints require user context/permission.
+  - Fetch issue/work-item details (title/body):
+    - `POST {base_url}/open_api/{project_key}/work_item/{work_item_type_key}/query` with `{ "work_item_ids": [<work_item_id>] }`.
+    - Use returned JSON fields to derive a concise title + body for the devloop task description.
 - If no GitHub issue exists for the task, create one using `gh issue create` after confirming with the user.
 - Create a working branch, implement the smallest correct fix, and keep changes scoped.
 - Commit changes when you believe a coherent unit is complete.
@@ -87,6 +96,12 @@ Workflow (repeat until completion or blocked):
 
 1. Gather inputs
    - Identify repo/root and issue identifier.
+   - If the argument looks like a Feishu/Lark Project issue URL/identifier:
+     - Parse `base_url`, `project_key`, `work_item_type_key`, `work_item_id`.
+     - Obtain `X-PLUGIN-TOKEN` by calling `POST {base_url}/open_api/authen/plugin_token` with `plugin_id`/`plugin_secret` (from local env/secrets).
+     - Fetch work-item details via `POST {base_url}/open_api/{project_key}/work_item/{work_item_type_key}/query` with `{ "work_item_ids": [<work_item_id>] }`.
+     - Use the fetched title/body as the task description for the rest of the workflow.
+     - (Optional) Ask the user whether to also create a mirror GitHub issue to track the work.
    - If NO issue identifier is provided but the task is described in text or a file:
      - Prompt the user via `AskUserQuestion` to confirm if a GitHub issue should be created to track the work. This is HIGHLY RECOMMENDED for a complete workflow.
      - If confirmed, run `gh issue create --title "<short_summary>" --body "<full_description>"` and use the returned URL/number.
