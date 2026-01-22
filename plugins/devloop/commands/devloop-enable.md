@@ -13,7 +13,7 @@ Steps:
    - `enabled: true`
 3. If it does not exist, create it with a minimal template and safe defaults.
 4. Ask user for:
-   - `review_mode` (github|coderabbit, default: `github`)
+   - `review_mode` (github|coderabbit|local-agent|custom, default: `github`)
    - `wait_behavior` (poll|ping_ai, default: `poll`)
    - If `wait_behavior` is `ping_ai`:
      - `ai_reviewer_id` (e.g., `coderabbitai`)
