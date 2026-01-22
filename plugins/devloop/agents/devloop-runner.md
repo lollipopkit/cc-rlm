@@ -157,9 +157,7 @@ Workflow (repeat until completion or blocked):
           - Valid `reviewDecision` values: `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`.
           - If `isDraft` is `true`:
             - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
-            - Ask the user whether to:
-              a) Stop polling and wait for manual intervention, OR
-              b) Continue polling but skip ping/notify attempts until the PR is marked ready for review.
+            - Continue polling but skip ping/notify attempts until the PR is marked ready for review.
         - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback:
 
           ```bash
