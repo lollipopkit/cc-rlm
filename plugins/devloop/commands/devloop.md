@@ -1,7 +1,7 @@
 ---
 name: devloop
 description: Start or resume the devloop workflow (create branch → fix → commit → PR → wait for AI review → apply comments → repeat).
-allowed-tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "AskUserQuestion", "TodoWrite", "Task"]
+allowed-tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "AskUserQuestion", "TodoWrite", "Task", "Skill"]
 argument-hint: "--issue <github-url|number|text|file> [--base main]"
 ---
 
@@ -35,7 +35,7 @@ Run the devloop workflow using the plugin components in this plugin. This comman
 
    - `enabled: true|false`
    - `base_branch: "main"`
-   - `review_mode: "github"|"local-agent"|"custom"`
+   - `review_mode: "github"|"coderabbit"|"local-agent"|"custom"`
    - `max_review_polls: 40`
    - `review_poll_seconds: 60`
    - `wait_behavior: "poll"|"ping_ai"`

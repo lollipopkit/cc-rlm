@@ -41,7 +41,7 @@ enabled: true
 base_branch: "main"
 
 # Review behavior
-review_mode: "github"   # github|local-agent|custom
+review_mode: "github"   # github|coderabbit|local-agent|custom
 max_review_polls: 40
 review_poll_seconds: 60
 

@@ -22,7 +22,7 @@ The agent needs to manage iterative changes, commits, and reviews based on an ex
 
 model: inherit
 color: cyan
-tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "AskUserQuestion", "TodoWrite", "Task", "WebFetch", "WebSearch"]
+tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "AskUserQuestion", "TodoWrite", "Task", "Skill", "WebFetch", "WebSearch"]
 ---
 
 You run an iterative engineering loop to resolve a user-provided issue and drive it to a merge-ready PR. You MUST NOT merge directly into the base branch (e.g., `main`) unless you explicitly ask the user and they approve; otherwise, you must always open a Pull Request and wait for review.
@@ -70,6 +70,10 @@ Settings:
 
 - Read `.claude/devloop.local.md` if present in the project root.
 - Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits, workspace_mode).
+  - `review_mode`:
+    - `"github"` (default): Poll for GitHub review comments.
+    - `"coderabbit"`: Proactively trigger review using the external `coderabbit:review` skill (provided by the CodeRabbit Claude Code plugin; not implemented by devloop). See `plugins/devloop/skills/coderabbit/SKILL.md`.
+    - `"local-agent"` / `"custom"`: Placeholder for other modes.
   - `workspace_mode`: set to `"gws"` to enable integration with `git-ws` for isolated workspaces and locking.
 
 Default completion criteria (unless overridden by settings):
@@ -134,42 +138,6 @@ Workflow (repeat until completion or blocked):
    - If the issue is from GitHub, ensure the PR description contains `Closes #<issue-number>` or a link to the issue to link them.
    - **CRITICAL**: Verify the PR body does NOT contain "Generated with Claude" or AI-related signatures.
 6. Wait for review
-   - Poll for new bot/AI review comments, review state, and mergeability status.
-   - Use `gh pr view --json isDraft,mergeable,reviewDecision` to check if the PR is ready for merge.
-     - Valid `mergeable` values: `MERGEABLE` (ready), `CONFLICTING` (needs manual fix), `UNKNOWN` (calculating, poll again).
-     - Valid `reviewDecision` values: `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`.
-     - If `isDraft` is `true`:
-       - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
-       - Ask the user whether to:
-         a) Stop polling and wait for manual intervention, OR
-         b) Continue polling but skip ping/notify attempts until the PR is marked ready for review.
-   - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback:
-
-     ```bash
-     gh api graphql -F owner='{owner}' -F name='{repo}' -F pr={number} -f query='
-       query($name: String!, $owner: String!, $pr: Int!) {
-         repository(owner: $owner, name: $name) {
-           pullRequest(number: $pr) {
-             reviewThreads(first: 100) {
-               nodes {
-                 isOutdated
-                 isResolved
-                 comments(last: 20) {
-                   nodes {
-                     body
-                     path
-                     line
-                     author { login }
-                   }
-                 }
-               }
-             }
-           }
-         }
-       }
-     ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
-     ```
-
    - Polling Strategy (Autonomous):
      **IMPORTANT**: You MUST remain in this polling loop autonomously. DO NOT exit the agent, DO NOT ask the user for permission to wait, and DO NOT wait for user input between rounds. Use the `Bash` tool to `sleep` and then immediately perform the next poll.
 
@@ -177,8 +145,51 @@ Workflow (repeat until completion or blocked):
      2. **Validation**: If `wait_behavior` is `ping_ai`:
         - Ensure `ai_reviewer_id` is set. If not, log a warning and fall back to `wait_behavior = "poll"`.
         - Ensure `ping_threshold` is at least 1. If not, default it to 3.
-     3. In each round, poll for comments using the GraphQL query.
-     4. If NO new comments are found:
+     3. **Review Round**:
+        - If `review_mode` is `"coderabbit"`:
+          - Trigger `coderabbit:review` once at the start of each polling cycle.
+          - If the Skill call fails (not installed, not authenticated, or errors), proceed with standard GitHub polling.
+          - If the review produced findings, treat them as new review feedback and proceed to **Apply feedback** (skip the remaining polling steps in this round).
+        - Poll for new bot/AI review comments, review state, and mergeability status.
+        - Use `gh pr view --json isDraft,mergeable,reviewDecision` to check if the PR is ready for merge.
+          - Valid `mergeable` values: `MERGEABLE` (ready), `CONFLICTING` (needs manual fix), `UNKNOWN` (calculating, poll again).
+          - Valid `reviewDecision` values: `APPROVED`, `CHANGES_REQUESTED`, `REVIEW_REQUIRED`.
+          - If `isDraft` is `true`:
+            - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
+            - Continue polling but skip ping/notify attempts until the PR is marked ready for review.
+        - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback.
+        - Replace `{owner}`, `{repo}`, and `{number}` with real values before running the query. Example:
+
+          ```bash
+          PR_NUMBER=$(gh pr view --json number --jq '.number')
+          REPO_OWNER=$(gh repo view --json owner --jq '.owner.login')
+          REPO_NAME=$(gh repo view --json name --jq '.name')
+
+          gh api graphql -F owner="$REPO_OWNER" -F name="$REPO_NAME" -F pr="$PR_NUMBER" -f query=' \
+            query($name: String!, $owner: String!, $pr: Int!) { \
+              repository(owner: $owner, name: $name) { \
+                pullRequest(number: $pr) { \
+                  reviewThreads(first: 100) { \
+                    nodes { \
+                      isOutdated \
+                      isResolved \
+                      comments(last: 20) { \
+                        nodes { \
+                          body \
+                          path \
+                          line \
+                          author { login } \
+                        } \
+                      } \
+                    } \
+                  } \
+                } \
+              } \
+            }' \
+            --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
+          ```
+
+     4. If the review round produced no findings (coderabbit mode) AND no new GitHub comments are found:
         - Increment `wait_rounds_without_response`.
         - If `wait_behavior` is `ping_ai`, `wait_rounds_without_response` >= `ping_threshold`, and `pings_sent` < 2:
           - Post a comment to the PR:
