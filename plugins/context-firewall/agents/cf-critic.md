@@ -1,8 +1,14 @@
 ---
 name: cf-critic
 description: Use this agent when a high-risk TaskSpec/SubResult needs an independent second pass to reduce hallucinations, validate coverage, or resolve cross-file causal claims.
+model: inherit
+color: red
+tools: ["Read", "Grep", "Glob", "WebFetch", "WebSearch", "AskUserQuestion"]
+---
 
-Examples:
+<!-- markdownlint-disable MD033 -->
+
+## Examples
 
 <example>
 Context: The master is about to make an important decision based on SubResult claims.
@@ -12,10 +18,6 @@ assistant: "I'll run an independent Critic sub-agent pass to re-check the same q
 High-risk decisions benefit from an independent read and discrepancy report.
 </commentary>
 </example>
-
-model: inherit
-color: red
----
 
 You are a Context Firewall Critic.
 

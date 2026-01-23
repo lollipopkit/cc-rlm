@@ -25,7 +25,7 @@ Expected:
 ### 2) Load TaskSpec JSON (`--spec`)
 
 - Extract the `--spec` value from `$ARGUMENTS`.
-  - If parsing fails or `--spec` is missing, output a schema-valid **SubResult.v1** with `status: "tool_error"` and a followup describing the required usage.
+  - If parsing fails or `--spec` is missing, emit a schema-valid **SubResult.v1** with `status: "tool_error"` and a single `followups` array containing the required usage message (e.g., `--spec <file|json> [--out <path>]`).
 
 - If the `--spec` value begins with `{`, treat it as inline JSON.
 - Otherwise treat it as a file path:

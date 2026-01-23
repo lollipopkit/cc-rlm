@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "context-firewall/SubResult.v1",
   "type": "object",
   "additionalProperties": false,
@@ -202,7 +203,10 @@
               "source": { "type": "string" },
               "method": { "type": "string" },
               "scope": { "type": "string" },
-              "counts": { "type": "object" }
+              "counts": {
+                "type": "object",
+                "description": "Optional freeform counters for this scan (shape intentionally unconstrained)."
+              }
             }
           }
         },

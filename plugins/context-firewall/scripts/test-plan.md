@@ -15,4 +15,5 @@
 ## Settings
 
 Create `.claude/context-firewall.local.md` using template in:
+
 - `plugins/context-firewall/scripts/settings-frontmatter.md`

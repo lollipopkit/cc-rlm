@@ -1,8 +1,14 @@
 ---
 name: cf-aggregator
 description: Use this agent when multiple FileWorker results need to be merged into a single SubResult.v1, with de-duplication, clustering, and conflict detection.
+model: inherit
+color: yellow
+tools: ["Read", "Write", "Edit"]
+---
 
-Examples:
+<!-- markdownlint-disable MD033 -->
+
+## Examples
 
 <example>
 Context: Several FileWorkers processed multiple log files; results must be combined.
@@ -12,11 +18,6 @@ assistant: "I'll use the Aggregator agent to merge FileWorker outputs into a sin
 Aggregation is a distinct task: merge, dedupe, conflict-detect, and keep evidence handles.
 </commentary>
 </example>
-
-model: inherit
-color: yellow
-tools: ["Read", "Write", "Edit"]
----
 
 You are a Context Firewall Aggregator.
 

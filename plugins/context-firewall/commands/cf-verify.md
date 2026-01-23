@@ -147,7 +147,7 @@ Status rules:
 
 - `ok` if `failed == 0` and `checked > 0` and all checked claims passed.
 - `failed` if `failed > 0`.
-- `partial` otherwise (e.g., no claims, or unverifiable locators only).
+- `partial` otherwise (e.g., no claims, or unverifiable locators only). This includes cases where `checked > 0` but `passed == 0` and `failed == 0` because all sampled claims were unverifiable.
 
 Include `failures[]` items for each failed claim:
 
