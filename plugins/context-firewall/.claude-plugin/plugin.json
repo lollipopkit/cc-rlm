@@ -1,0 +1,19 @@
+{
+  "name": "context-firewall",
+  "version": "0.1.0",
+  "description": "Context Firewall: use sub-agents to preprocess large inputs with evidence contracts and low-cost verification.",
+  "author": {
+    "name": "lollipopkit"
+  },
+  "keywords": [
+    "context",
+    "sub-agent",
+    "summarization",
+    "evidence",
+    "verification",
+    "map-reduce"
+  ],
+  "repository": "https://github.com/lollipopkit/cc-plugins",
+  "license": "MIT",
+  "commands": "./commands/"
+}

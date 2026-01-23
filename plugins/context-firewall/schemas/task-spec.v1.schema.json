@@ -1,0 +1,174 @@
+{
+  "$id": "context-firewall/TaskSpec.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "task_id",
+    "objective",
+    "inputs",
+    "questions",
+    "constraints",
+    "risk_level",
+    "output_schema"
+  ],
+  "properties": {
+    "version": { "const": "TaskSpec.v1" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Input" }
+    },
+
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+
+    "must_cover": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MustCover" }
+    },
+
+    "constraints": { "$ref": "#/$defs/Constraints" },
+
+    "output_schema": { "const": "SubResult.v1" },
+    "risk_level": { "enum": ["low", "medium", "high"] },
+
+    "map_reduce": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "strategy": { "enum": ["by_input", "by_file"], "default": "by_input" }
+      }
+    },
+
+    "critic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "trigger": { "enum": ["on_conflict", "on_low_confidence", "manual"], "default": "on_conflict" },
+        "confidence_threshold": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.6 }
+      }
+    }
+  },
+
+  "$defs": {
+    "Constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_output_tokens", "max_claims", "evidence_per_claim_min", "quote_max_chars"],
+      "properties": {
+        "max_output_tokens": { "type": "integer", "minimum": 200, "maximum": 8000, "default": 1200 },
+        "max_claims": { "type": "integer", "minimum": 1, "maximum": 200, "default": 25 },
+        "evidence_per_claim_min": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 },
+        "quote_max_chars": { "type": "integer", "minimum": 40, "maximum": 2000, "default": 240 }
+      }
+    },
+
+    "MustCover": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "enum": ["time_window", "keyword", "path_glob", "module", "note"] },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "Input": {
+      "oneOf": [
+        { "$ref": "#/$defs/FileInput" },
+        { "$ref": "#/$defs/PdfInput" },
+        { "$ref": "#/$defs/ImageInput" },
+        { "$ref": "#/$defs/GitDiffInput" },
+        { "$ref": "#/$defs/WebFetchInput" },
+        { "$ref": "#/$defs/WebSearchInput" },
+        { "$ref": "#/$defs/McpToolInput" }
+      ]
+    },
+
+    "FileInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "const": "file" },
+        "path": { "type": "string", "minLength": 1 },
+        "hint": { "type": "string" }
+      }
+    },
+
+    "PdfInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "const": "pdf" },
+        "path": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "ImageInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "const": "image" },
+        "path": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "GitDiffInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "git_diff" },
+        "base": { "type": "string", "default": "main" },
+        "head": { "type": "string", "default": "HEAD" },
+        "paths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "WebFetchInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "prompt"],
+      "properties": {
+        "type": { "const": "web_fetch" },
+        "url": { "type": "string", "minLength": 1 },
+        "prompt": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "WebSearchInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "query"],
+      "properties": {
+        "type": { "const": "web_search" },
+        "query": { "type": "string", "minLength": 2 },
+        "allowed_domains": { "type": "array", "items": { "type": "string" } },
+        "blocked_domains": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "McpToolInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "tool"],
+      "properties": {
+        "type": { "const": "mcp" },
+        "tool": { "type": "string", "minLength": 1 },
+        "args": { "type": "object" }
+      }
+    }
+  }
+}

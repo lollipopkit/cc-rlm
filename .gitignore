@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+
+# Claude Code local config/state
+.claude/*.local.md
+.claude/*.local.json
+.claude/context-firewall/

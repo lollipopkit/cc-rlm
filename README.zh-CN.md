@@ -9,6 +9,7 @@
 - `recursive-reasoning`: 递归推理引擎 - 通过 Self-Refine、Reflexion、Tree of Thoughts 实现多轮推理。
 - `devloop`: 对一个 issue 进行迭代，直到准备好合并：创建分支、修复、提交、打开 PR、等待 AI 审查、应用反馈、重复。
 - `gws-manager`: 使用 gws CLI 工具管理并行开发工作区和建议锁。
+- `context-firewall`: 使用子代理预处理大输入，输出可审计的压缩结论（带证据 locator），并支持 Map-Reduce + 低成本抽样复核。
 
 ## 使用方法
 

@@ -1,0 +1,31 @@
+{
+  "version": "TaskSpec.v1",
+  "task_id": "example-logs-timeout",
+  "objective": "Analyze multiple large log files for timeout patterns without flooding master context; produce auditable claims with line evidence.",
+  "inputs": [
+    { "type": "file", "path": "logs/app.log", "hint": "application logs" },
+    { "type": "file", "path": "logs/db.log", "hint": "database logs" },
+    { "type": "file", "path": "logs/proxy.log", "hint": "reverse proxy logs" }
+  ],
+  "questions": [
+    "What are the main timeout types and their triggering conditions?",
+    "What are the top 3 error clusters by frequency?",
+    "Is there evidence of a regression window (time/version/commit)?"
+  ],
+  "must_cover": [
+    { "type": "time_window", "value": "2026-01-20 ~ 2026-01-22" },
+    { "type": "keyword", "value": "timeout" },
+    { "type": "keyword", "value": "deadline" },
+    { "type": "keyword", "value": "context deadline exceeded" }
+  ],
+  "constraints": {
+    "max_output_tokens": 1200,
+    "max_claims": 25,
+    "evidence_per_claim_min": 1,
+    "quote_max_chars": 240
+  },
+  "output_schema": "SubResult.v1",
+  "risk_level": "high",
+  "map_reduce": { "enabled": true, "strategy": "by_input" },
+  "critic": { "enabled": true, "trigger": "on_conflict", "confidence_threshold": 0.6 }
+}

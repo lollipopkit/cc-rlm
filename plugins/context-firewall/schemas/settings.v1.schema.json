@@ -1,0 +1,42 @@
+{
+  "$id": "context-firewall/Settings.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["enabled"],
+  "properties": {
+    "enabled": { "type": "boolean", "default": true },
+
+    "read_warn_bytes": { "type": "integer", "minimum": 0, "default": 524288 },
+    "tool_output_warn_chars": { "type": "integer", "minimum": 0, "default": 20000 },
+
+    "sample_rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "low": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.05 },
+        "medium": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.15 },
+        "high": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.30 }
+      }
+    },
+
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_output_tokens": { "type": "integer", "minimum": 200, "maximum": 8000, "default": 1200 },
+        "max_claims": { "type": "integer", "minimum": 1, "maximum": 200, "default": 25 },
+        "evidence_per_claim_min": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 },
+        "quote_max_chars": { "type": "integer", "minimum": 40, "maximum": 2000, "default": 240 }
+      }
+    },
+
+    "persist": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "dir": { "type": "string", "default": ".claude/context-firewall" }
+      }
+    }
+  }
+}

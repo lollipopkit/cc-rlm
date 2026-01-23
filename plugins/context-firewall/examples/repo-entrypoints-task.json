@@ -1,0 +1,28 @@
+{
+  "version": "TaskSpec.v1",
+  "task_id": "example-repo-entrypoints",
+  "objective": "Find implementation entrypoints and call chain across multiple files without reading the whole repo into master; produce symbol/line evidence.",
+  "inputs": [
+    { "type": "file", "path": "src", "hint": "project source directory (scan selectively; do not dump contents)" },
+    { "type": "git_diff", "base": "main", "head": "HEAD", "paths": [] }
+  ],
+  "questions": [
+    "Where is the main entrypoint for the feature (route/handler/command) and how is it wired?",
+    "What is the minimal call chain (3-8 hops) from entrypoint to core logic?",
+    "Which config/settings files affect this feature?"
+  ],
+  "must_cover": [
+    { "type": "module", "value": "routing/handlers" },
+    { "type": "note", "value": "Prefer symbol_range evidence for call chain nodes; fall back to line_range." }
+  ],
+  "constraints": {
+    "max_output_tokens": 1400,
+    "max_claims": 30,
+    "evidence_per_claim_min": 1,
+    "quote_max_chars": 240
+  },
+  "output_schema": "SubResult.v1",
+  "risk_level": "medium",
+  "map_reduce": { "enabled": true, "strategy": "by_input" },
+  "critic": { "enabled": true, "trigger": "on_low_confidence", "confidence_threshold": 0.65 }
+}

@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context-firewall/SubResult.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "task_id", "status", "answers", "coverage"],
+  "properties": {
+    "version": { "const": "SubResult.v1" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["ok", "partial", "tool_error"] },
+
+    "answers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Answer" }
+    },
+
+    "coverage": { "$ref": "#/$defs/Coverage" },
+
+    "followups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Followup" }
+    }
+  },
+
+  "$defs": {
+    "Answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "summary", "claims"],
+      "properties": {
+        "question": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "claims": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Claim" }
+        }
+      }
+    },
+
+    "Claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "confidence", "evidence"],
+      "properties": {
+        "claim_id": { "type": "string" },
+        "claim": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Evidence" }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "locator"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "locator": { "$ref": "#/$defs/Locator" },
+        "quote": { "type": "string" },
+        "quote_hash": { "type": "string", "pattern": "^sha256:" }
+      },
+      "anyOf": [
+        { "required": ["quote"] },
+        { "required": ["quote_hash"] }
+      ]
+    },
+
+    "Locator": {
+      "oneOf": [
+        { "$ref": "#/$defs/LineRange" },
+        { "$ref": "#/$defs/SymbolRange" },
+        { "$ref": "#/$defs/ToolCall" },
+        { "$ref": "#/$defs/ByteRange" },
+        { "$ref": "#/$defs/JsonPath" },
+        { "$ref": "#/$defs/StackSignature" }
+      ]
+    },
+
+    "LineRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "start", "end"],
+      "properties": {
+        "type": { "const": "line_range" },
+        "path": { "type": "string" },
+        "start": { "type": "integer", "minimum": 1 },
+        "end": { "type": "integer", "minimum": 1 }
+      }
+    },
+
+    "SymbolRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "symbol"],
+      "properties": {
+        "type": { "const": "symbol_range" },
+        "path": { "type": "string" },
+        "symbol": { "type": "string" },
+        "kind": { "enum": ["function", "method", "class", "struct", "enum", "const", "var", "type", "module"] },
+        "signature_hint": { "type": "string" }
+      }
+    },
+
+    "ToolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "tool", "args_hash"],
+      "properties": {
+        "type": { "const": "tool_call" },
+        "tool": { "type": "string" },
+        "args_hash": { "type": "string", "pattern": "^sha256:" },
+        "rerun_hint": { "$ref": "#/$defs/RerunHint" }
+      }
+    },
+
+    "RerunHint": {
+      "oneOf": [
+        { "$ref": "#/$defs/RerunHintWebFetch" },
+        { "$ref": "#/$defs/RerunHintWebSearch" },
+        { "$ref": "#/$defs/RerunHintUnknown" }
+      ]
+    },
+
+    "RerunHintWebFetch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "prompt"],
+      "properties": {
+        "type": { "const": "web_fetch" },
+        "url": { "type": "string", "minLength": 1 },
+        "prompt": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "RerunHintWebSearch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "query"],
+      "properties": {
+        "type": { "const": "web_search" },
+        "query": { "type": "string", "minLength": 2 },
+        "allowed_domains": { "type": "array", "items": { "type": "string" } },
+        "blocked_domains": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "RerunHintUnknown": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "unknown" },
+        "note": { "type": "string" }
+      }
+    },
+
+    "ByteRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "start", "end"],
+      "properties": {
+        "type": { "const": "byte_range" },
+        "path": { "type": "string" },
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "JsonPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "source", "path"],
+      "properties": {
+        "type": { "const": "json_path" },
+        "source": { "type": "string" },
+        "path": { "type": "string" }
+      }
+    },
+
+    "StackSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "signature"],
+      "properties": {
+        "type": { "const": "stack_signature" },
+        "signature": { "type": "string" }
+      }
+    },
+
+    "Coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputs_scanned"],
+      "properties": {
+        "inputs_scanned": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "method", "scope"],
+            "properties": {
+              "source": { "type": "string" },
+              "method": { "type": "string" },
+              "scope": { "type": "string" },
+              "counts": {
+                "type": "object",
+                "description": "Optional freeform counters for this scan (shape intentionally unconstrained)."
+              }
+            }
+          }
+        },
+        "known_gaps": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "Followup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["need", "suggested_next_task"],
+      "properties": {
+        "need": { "type": "string" },
+        "suggested_next_task": { "type": "string" }
+      }
+    }
+  }
+}

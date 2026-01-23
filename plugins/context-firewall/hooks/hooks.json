@@ -1,0 +1,53 @@
+{
+  "description": "Context Firewall reminder hooks (advisory only)",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate whether this Read tool call is likely to pull a large amount of content into the master context.\n\nRules:\n- This hook is advisory only.\n- If the tool input does not specify a small `limit` (or uses a very large limit), and the path looks like a log/large file, return 'ask' and suggest using /cf-spec then /cf-run with a TaskSpec instead.\n- Mention that thresholds can be configured in .claude/context-firewall.local.md (read_warn_bytes).\n- If it is a small/targeted read (e.g., explicit small offset/limit, config file, short file), return 'approve'.\n- If the file path indicates sensitive content (.env, credentials), return 'ask' and warn.\n\nReturn 'approve' or 'ask'.",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate whether this tool call is likely to return a very large result that will bloat the master context.\n\nRules:\n- This hook is advisory only.\n- If the intent looks like 'fetch the full page', 'list everything', 'show all results', or a broad query that will return large output, return 'ask' and suggest using /cf-spec then /cf-run so that only structured claims + evidence are returned.\n- Mention that thresholds can be configured in .claude/context-firewall.local.md (tool_output_warn_chars).\n- Otherwise return 'approve'.\n\nReturn 'approve' or 'ask'.",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+
+    "PostToolUse": [
+      {
+        "matcher": "WebFetch|WebSearch",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If the tool result appears very long or noisy, suggest switching to the context-firewall workflow.\n\nProvide a short, actionable suggestion:\n- Use /cf-spec to generate a TaskSpec\n- Then use /cf-run to produce SubResult with evidence\n- Mention that .claude/context-firewall.local.md can tune tool_output_warn_chars\n\nDo not block; provide guidance only.",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate whether the user prompt contains a large pasted blob (logs, long documents, long JSON, etc.) that will bloat the master context.\n\nRules:\n- This hook is advisory only.\n- If the prompt appears large and unstructured, return 'ask' and suggest: save content to a file and use /cf-run with a TaskSpec (or provide file paths).\n- Otherwise return 'approve'.\n\nReturn 'approve' or 'ask'.",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

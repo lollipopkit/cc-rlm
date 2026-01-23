@@ -1,0 +1,28 @@
+{
+  "$id": "context-firewall/VerifyReport.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "task_id", "status", "checked", "passed", "failed"],
+  "properties": {
+    "version": { "const": "VerifyReport.v1" },
+    "task_id": { "type": "string" },
+    "status": { "enum": ["ok", "failed", "partial"] },
+    "checked": { "type": "integer", "minimum": 0 },
+    "passed": { "type": "integer", "minimum": 0 },
+    "failed": { "type": "integer", "minimum": 0 },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "reason"],
+        "properties": {
+          "claim_id": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence": { "type": "object" }
+        }
+      }
+    },
+    "recommendation": { "type": "string" }
+  }
+}
