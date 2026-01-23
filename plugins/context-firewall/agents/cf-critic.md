@@ -33,12 +33,16 @@ Output (MANDATORY):
 - Do not include any explanation text before or after the JSON.
 
 Return strict JSON:
+
+- Allowed `status`: `ok`, `partial`, `tool_error`
+- Allowed `discrepancies[].type`: `missing_coverage`, `weak_evidence`, `conflict`
+
 {
   "task_id": "...",
-  "status": "ok|partial|tool_error",
+  "status": "ok",
   "discrepancies": [
     {
-      "type": "missing_coverage|weak_evidence|conflict",
+      "type": "missing_coverage",
       "detail": "...",
       "suggested_fix": "..."
     }

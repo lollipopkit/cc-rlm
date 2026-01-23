@@ -63,7 +63,11 @@
         "locator": { "$ref": "#/$defs/Locator" },
         "quote": { "type": "string" },
         "quote_hash": { "type": "string", "pattern": "^sha256:" }
-      }
+      },
+      "anyOf": [
+        { "required": ["quote"] },
+        { "required": ["quote_hash"] }
+      ]
     },
 
     "Locator": {

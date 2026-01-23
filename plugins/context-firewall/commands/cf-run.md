@@ -27,8 +27,8 @@ Expected:
 - Extract the `--spec` value from `$ARGUMENTS`.
   - If parsing fails or `--spec` is missing, emit a schema-valid **SubResult.v1** with `status: "tool_error"` and a single `followups` array containing the required usage message (e.g., `--spec <file|json> [--out <path>]`).
 
-- If the `--spec` value begins with `{`, treat it as inline JSON.
-- Otherwise treat it as a file path:
+- If the `--spec` value, after trimming leading whitespace, begins with `{`, treat it as inline JSON.
+- Otherwise treat it as a file path (use the untrimmed value):
   - If it is not absolute, resolve to an absolute path by joining with the project root.
   - Read the file content via Read.
 
