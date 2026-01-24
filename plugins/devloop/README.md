@@ -35,7 +35,7 @@ Create `.claude/devloop.local.md` in your project root.
 
 Notes:
 
-- If your repo contains `.pre-commit-config.yaml` and `pre-commit` is available, the validator step will run `pre-commit run --all-files --show-diff-on-failure` to help catch CI failures earlier.
+- If your repo contains a pre-commit hook script (e.g. `./.husky/pre-commit`), the validator step will run it to help catch CI failures earlier.
 
 Minimal template:
 

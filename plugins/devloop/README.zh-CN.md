@@ -35,7 +35,7 @@
 
 说明：
 
-- 如果你的仓库包含 `.pre-commit-config.yaml` 且本机可用 `pre-commit`，验证阶段会运行 `pre-commit run --all-files --show-diff-on-failure`，用于提前发现可能导致 CI 失败的问题。
+- 如果你的仓库包含 pre-commit 的 hook 脚本（例如 `./.husky/pre-commit`），验证阶段会运行该脚本，用于提前发现可能导致 CI 失败的问题。
 
 最小模板：
 
