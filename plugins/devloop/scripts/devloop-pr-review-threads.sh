@@ -33,18 +33,32 @@ REPO=""
 PR=""
 JQ_FILTER=""
 
+need_value() {
+  local flag="$1"
+  local value="${2:-}"
+
+  if [[ -z "$value" || "$value" == -* ]]; then
+    echo "Missing value for $flag" >&2
+    usage >&2
+    exit 2
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo)
-      REPO="${2:-}"
+      need_value "--repo" "${2:-}"
+      REPO="$2"
       shift 2
       ;;
     --pr)
-      PR="${2:-}"
+      need_value "--pr" "${2:-}"
+      PR="$2"
       shift 2
       ;;
     --jq)
-      JQ_FILTER="${2:-}"
+      need_value "--jq" "${2:-}"
+      JQ_FILTER="$2"
       shift 2
       ;;
     --json)
@@ -61,6 +75,11 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "gh is required" >&2
+  exit 127
+fi
 
 if [[ -z "$REPO" ]]; then
   REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
@@ -163,10 +182,18 @@ def gh_graphql(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
         raise SystemExit(res.returncode)
 
     try:
-        return json.loads(res.stdout)
+        data = json.loads(res.stdout)
     except Exception:
         sys.stderr.write(res.stdout)
         raise
+
+    errors = data.get("errors")
+    if errors:
+        sys.stderr.write(json.dumps(errors, ensure_ascii=False, indent=2))
+        sys.stderr.write("\n")
+        raise SystemExit(1)
+
+    return data
 
 
 def emit_jsonl(obj: Any) -> None:
