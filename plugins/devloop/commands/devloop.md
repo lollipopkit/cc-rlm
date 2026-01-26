@@ -40,11 +40,13 @@ Run the devloop workflow using the plugin components in this plugin. This comman
 
    - `enabled: true|false`
    - `base_branch: "main"`
-   - `review_mode: "github"|"coderabbit"|"local-agent"|"custom"`
+   - `review_mode: "github"|"custom"`
+     - If `review_mode` is `"custom"`, you may set:
+       - `custom_review_skill: "..."` (e.g., `coderabbit:review`)
    - `max_review_polls: 40`
    - `review_poll_seconds: 60`
    - `wait_behavior: "poll"|"ping_ai"`
-   - `ai_reviewer_id: "..."` (e.g., `coderabbitai`)
+   - `ai_reviewer_id: "..."` (e.g., a bot account/login to ping)
    - `ping_message_template: "..."`
    - `ping_threshold: 3`
    - `notify_enabled: true|false`

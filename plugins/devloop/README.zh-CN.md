@@ -41,13 +41,14 @@ enabled: true
 base_branch: "main"
 
 # Review behavior
-review_mode: "github"   # github|coderabbit|local-agent|custom
+review_mode: "github"   # github|custom
+custom_review_skill: ""  # 可选；例如 "coderabbit:review"
 max_review_polls: 40
 review_poll_seconds: 60
 
 # Wait for review behavior
 wait_behavior: "poll"   # poll|ping_ai
-ai_reviewer_id: "coderabbitai"
+ai_reviewer_id: ""
 ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
 ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
 

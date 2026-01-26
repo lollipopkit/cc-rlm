@@ -13,10 +13,12 @@ Steps:
    - `enabled: true`
 3. If it does not exist, create it with a minimal template and safe defaults.
 4. Ask user for:
-   - `review_mode` (github|coderabbit|local-agent|custom, default: `github`)
+   - `review_mode` (github|custom, default: `github`)
+     - If `review_mode` is `custom`:
+       - `custom_review_skill` (optional; e.g., `coderabbit:review` if you have the CodeRabbit plugin installed)
    - `wait_behavior` (poll|ping_ai, default: `poll`)
    - If `wait_behavior` is `ping_ai`:
-     - `ai_reviewer_id` (e.g., `coderabbitai`)
+     - `ai_reviewer_id` (e.g., a bot account/login to ping)
      - `ping_message_template` (default: `@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?`)
      - `ping_threshold` (number of wait rounds with no response before pinging, default: 3)
    - `notify_enabled` (true/false)

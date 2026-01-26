@@ -81,8 +81,8 @@ Settings:
 - Parse YAML frontmatter for configuration (enabled, notification settings, review mode, wait_behavior, ping_threshold, ai_reviewer_id, ping_message_template, polling limits, workspace_mode).
   - `review_mode`:
     - `"github"` (default): Poll for GitHub review comments.
-    - `"coderabbit"`: Proactively trigger review using the external `coderabbit:review` skill (provided by the CodeRabbit Claude Code plugin; not implemented by devloop). See `plugins/devloop/skills/coderabbit/SKILL.md`.
-    - `"local-agent"` / `"custom"`: Placeholder for other modes.
+    - `"custom"`: Use a user-provided review skill each polling cycle (via `custom_review_skill`).
+      - Example: `custom_review_skill: "coderabbit:review"` (requires the CodeRabbit plugin).
   - `workspace_mode`: set to `"gws"` to enable integration with `git-ws` for isolated workspaces and locking.
 
 Default completion criteria (unless overridden by settings):
@@ -161,8 +161,8 @@ Workflow (repeat until completion or blocked):
         - Ensure `ai_reviewer_id` is set. If not, log a warning and fall back to `wait_behavior = "poll"`.
         - Ensure `ping_threshold` is at least 1. If not, default it to 3.
      3. **Review Round**:
-        - If `review_mode` is `"coderabbit"`:
-          - Trigger `coderabbit:review` once at the start of each polling cycle.
+        - If `review_mode` is `"custom"` and `custom_review_skill` is set:
+          - Trigger `custom_review_skill` once at the start of each polling cycle.
           - If the Skill call fails (not installed, not authenticated, or errors), proceed with standard GitHub polling.
           - If the review produced findings, treat them as new review feedback and proceed to **Apply feedback** (skip the remaining polling steps in this round).
         - Poll for new bot/AI review comments, review state, and mergeability status.
@@ -204,7 +204,7 @@ Workflow (repeat until completion or blocked):
             --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
           ```
 
-     4. If the review round produced no findings (coderabbit mode) AND no new GitHub comments are found:
+     4. If the review round produced no findings (custom review skill mode) AND no new GitHub comments are found:
         - Increment `wait_rounds_without_response`.
         - If `wait_behavior` is `ping_ai`, `wait_rounds_without_response` >= `ping_threshold`, and `pings_sent` < 2:
           - Post a comment to the PR:
