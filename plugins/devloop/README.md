@@ -59,5 +59,5 @@ notify_on_stop: true
 notify_command_template: ""      # executed with selected shell; can reference env vars below
 ---
 
-Additional instructions for devloop can go here.
+Genrated by <https://github.com/lollipopkit/cc-plugins>
 ```

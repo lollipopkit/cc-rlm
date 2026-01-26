@@ -62,20 +62,10 @@ Run the devloop workflow using the plugin components in this plugin. This comman
 - **Branch Logic**: Create a new branch based on the issue content ONLY if the current branch is the base branch.
 - **Git Protocol**: NEVER use `git push --force`, `git push -f`, or `git commit --amend` on branches that have already been pushed to the remote or have an open PR. Always create new commits and use standard `git push`.
 - **Review Polling**: The agent will remain in an autonomous polling loop using `sleep` between polls.
-  - GraphQL for filtering comments:
+  - GraphQL for filtering active (not outdated/resolved) review thread comments is wrapped in a helper script:
 
     ```bash
-    gh api graphql -F owner='{owner}' -F name='{repo}' -F pr={number} -f query='
-      query($name: String!, $owner: String!, $pr: Int!) {
-        repository(owner: $owner, name: $name) {
-          pullRequest(number: $pr) {
-            reviewThreads(first: 100) {
-              nodes { isOutdated isResolved comments(last: 20) { nodes { body path line author { login } } } }
-            }
-          }
-        }
-      }
-    ' --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
+    bash "${CLAUDE_PLUGIN_ROOT}/scripts/devloop-pr-review-threads.sh" --repo "{owner}/{repo}" --pr {number}
     ```
 
 - **Presence & Communication (MANDATORY)**:

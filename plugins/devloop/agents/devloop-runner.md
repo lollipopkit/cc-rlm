@@ -173,35 +173,10 @@ Workflow (repeat until completion or blocked):
             - Notify the user that the PR is a draft and may not receive reviews until marked as ready.
             - Continue polling but skip ping/notify attempts until the PR is marked ready for review.
         - Use GraphQL to filter out outdated and resolved comments to ensure you only address active feedback.
-        - Replace `{owner}`, `{repo}`, and `{number}` with real values before running the query. Example:
+        - Use the helper script (outputs JSONL; one JSON object per line):
 
           ```bash
-          PR_NUMBER=$(gh pr view --json number --jq '.number')
-          REPO_OWNER=$(gh repo view --json owner --jq '.owner.login')
-          REPO_NAME=$(gh repo view --json name --jq '.name')
-
-          gh api graphql -F owner="$REPO_OWNER" -F name="$REPO_NAME" -F pr="$PR_NUMBER" -f query=' \
-            query($name: String!, $owner: String!, $pr: Int!) { \
-              repository(owner: $owner, name: $name) { \
-                pullRequest(number: $pr) { \
-                  reviewThreads(first: 100) { \
-                    nodes { \
-                      isOutdated \
-                      isResolved \
-                      comments(last: 20) { \
-                        nodes { \
-                          body \
-                          path \
-                          line \
-                          author { login } \
-                        } \
-                      } \
-                    } \
-                  } \
-                } \
-              } \
-            }' \
-            --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isOutdated == false and .isResolved == false) | .comments.nodes[]'
+          bash "${CLAUDE_PLUGIN_ROOT}/scripts/devloop-pr-review-threads.sh" --repo "$(gh repo view --json nameWithOwner --jq '.nameWithOwner')" --pr "$(gh pr view --json number --jq '.number')"
           ```
 
      4. If the review round produced no findings (custom review skill mode) AND no new GitHub comments are found:
