@@ -89,6 +89,11 @@ if [[ -z "$PR" ]]; then
   PR=$(gh pr view --json number --jq '.number')
 fi
 
+if [[ "$REPO" != */* || "${REPO#*/}" == *"/"* ]]; then
+  echo "Invalid --repo format: expected owner/name" >&2
+  exit 2
+fi
+
 OWNER="${REPO%%/*}"
 NAME="${REPO#*/}"
 
