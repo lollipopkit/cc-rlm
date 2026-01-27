@@ -1,78 +1,33 @@
 ---
 name: devloop
-description: Start or resume the devloop workflow (create branch → fix → commit → PR → wait for AI review → apply comments → repeat).
+description: 启动或恢复 devloop 工作流（创建分支 → 修复 → 提交 → PR → 等待 AI 审查 → 应用评论 → 重复）。
 allowed-tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "AskUserQuestion", "TodoWrite", "Task", "Skill"]
 argument-hint: "--issue <github-url|number|feishu/lark-url|text|file> [--base main]"
 ---
 
-Run the devloop workflow using the plugin components in this plugin. This command drives a task to a merge-ready pull request through repeated cycles.
+使用本插件中的插件组件运行 devloop 工作流。此命令通过重复循环，将任务推进到可以合并的 pull request。
 
-## Mandatory Workflow
+## 强制工作流
 
-1. **Create Branch**:
-   - If on the base branch (e.g. `main`): Create a new descriptive branch based on the issue/task content.
-   - If NOT on the base branch: Check if the current branch is already associated with a different PR or issue. Prompt if a mismatch is detected.
-2. **Implement Fix**: Research and implement the smallest correct fix.
-3. **Validate**: Run the smallest relevant test/build command.
-4. **Commit**: Create a clear commit message.
-5. **Pull Request**: Open a PR for review.
-6. **Wait for Review**: Poll for review comments and PR mergeability status (`MERGEABLE`, `UNKNOWN`, or `CONFLICTING`).
-7. **Address Feedback**: Apply changes based on review comments and commit/push again.
-8. **Repeat**: Iterate until the PR is approved and `mergeable` is `MERGEABLE`.
+1. **读取设置**：读取 `.claude/devloop.local.md` 以获取项目特定的配置（审查模式、分支等）。
+2. **确定问题来源**：从 GitHub issue、URL、飞书项目、本地文件或文本描述中识别任务。
+3. **调用循环代理**：启动 `devloop-runner` 以执行完整的 修复/审查 周期。
 
-## Behavior
+## 行为
 
-1. **Determine the issue source**:
+- **初始设置**：如果在基准分支（默认 `main`）上，则创建一个新分支。
+- **开发周期**：将实施任务委托给 `devloop-implementer`，将验证任务委托给 `devloop-validator`。
+- **审查循环**：
+  - **轮询审查**：等待 PR 状态更改和审查评论。
+  - **审查策略**：遵循设置中的 `review_mode`。
+    - `github`（默认）：使用 `scripts/devloop-pr-review-threads.sh` 轮询评论。
+    - `custom`：在每个周期触发特定的技能（例如 `coderabbit:review`）或脚本。
+  - **处理反馈**：自动针对新评论实施修复并重新验证。
+- **完成**：当 PR 获得批准且 `mergeable` 状态为 `MERGEABLE` 时停止。
 
-   - If the argument looks like a GitHub URL or issue/PR number, use `gh` to fetch title/body, labels, repo, and existing PR linkage.
-   - If the argument looks like a Feishu/Lark Project issue URL or identifier, fetch the issue title/body via Feishu Project OpenAPI (requires local credentials) and use that as the task description.
-     - Typical issue URL pattern (seen in the wild): `https://project.feishu.cn/<project_key>/<work_item_type>/detail/<work_item_id>` (e.g. `.../story/detail/123`).
-     - Auth (Project OpenAPI): send `X-PLUGIN-TOKEN` (and sometimes `X-USER-KEY`) headers.
-       - Get a plugin token (example): `POST {base_url}/open_api/authen/plugin_token` with JSON `{ "plugin_id": "...", "plugin_secret": "..." }`, then use response `data.token` as `X-PLUGIN-TOKEN`.
-     - Fetch work item details (example): `POST {base_url}/open_api/{project_key}/work_item/{work_item_type_key}/query` with JSON `{ "work_item_ids": [<work_item_id>] }`.
-   - When NO argument is provided, or if starting on a non-base branch, use `gh pr list --head $(git branch --show-current) --json number,url,title,body` to check for an existing PR associated with the current branch.
-   - Should NO argument be provided and NO existing PR is found, the agent will prompt for a task description or offer to create a new issue.
-   - If the argument looks like a local file path, read it and treat it as the issue/task description.
-   - Otherwise, treat it as a free-form text task.
-   - For cases where a text task or local file is provided and no GitHub issue exists, the agent will offer to create one to track the work.
+## 规则与安全
 
-2. **Read settings** from `.claude/devloop.local.md` if present. Supported fields in YAML frontmatter:
-
-   - `enabled: true|false`
-   - `base_branch: "main"`
-   - `review_mode: "github"|"custom"`
-     - If `review_mode` is `"custom"`, you may set:
-       - `custom_review_skill: "..."` (e.g., `coderabbit:review`)
-   - `max_review_polls: 40`
-   - `review_poll_seconds: 60`
-   - `wait_behavior: "poll"|"ping_ai"`
-   - `ai_reviewer_id: "..."` (e.g., a bot account/login to ping)
-   - `ping_message_template: "..."`
-   - `ping_threshold: 3`
-   - `notify_enabled: true|false`
-   - `notify_shell: "auto"|"bash"|"fish"`
-   - `notify_on_stop: true|false`
-   - `notify_command_template: "..."`
-   - `workspace_mode: "gws"|"local"` (set to `"gws"` for `git-ws` integration)
-
-3. **Invoke the loop agent** `devloop-runner` to execute the full fix/review cycle.
-
-## Rules & Safety
-
-- **Branch Logic**: Create a new branch based on the issue content ONLY if the current branch is the base branch.
-- **Git Protocol**: NEVER use `git push --force`, `git push -f`, or `git commit --amend` on branches that have already been pushed to the remote or have an open PR. Always create new commits and use standard `git push`.
-- **Review Polling**: The agent will remain in an autonomous polling loop using `sleep` between polls.
-  - GraphQL for filtering active (not outdated/resolved) review thread comments is wrapped in a helper script:
-
-    ```bash
-    bash "${CLAUDE_PLUGIN_ROOT}/scripts/devloop-pr-review-threads.sh" --repo "{owner}/{repo}" --pr {number}
-    ```
-
-- **Presence & Communication (MANDATORY)**:
-  - CRITICAL: DO NOT include "Co-authored-by: Claude" or any variation in commit messages.
-  - CRITICAL: DO NOT include "Generated with Claude" or AI signatures in PR descriptions. Specifically, NEVER include "🤖 Generated with [Claude Code](https://claude.com/claude-code)".
-  - Maintain a professional, human-like presence in all git and GitHub metadata.
-  - If any sub-agent or tool includes these, you MUST remove them before completing the task.
-- **Avoid destructive operations**.
-- If review comments request changes that look incorrect or out-of-scope, ask the user before proceeding.
-- Prefer using `gh` for GitHub workflows when available.
+- **Git 协议**：严禁在共享/远程分支上使用 `git push --force` 或 `git commit --amend`。
+- **无 AI 签名**：提交或 PR 中绝对不允许出现 "Co-authored-by: Claude" 或 "Generated with Claude"。
+- **自主轮询**：使用 `sleep` 保持在轮询循环中，两轮之间无需请求用户交互。
+- **通知**：如果启用，使用 `scripts/devloop-notify.sh` 通过 `hooks.json` 发送更新。

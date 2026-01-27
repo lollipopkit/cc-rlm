@@ -188,9 +188,10 @@ def gh_graphql(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         data = json.loads(res.stdout)
-    except Exception:
+    except json.JSONDecodeError as e:
         sys.stderr.write(res.stdout)
-        raise
+        sys.stderr.write(str(e) + "\n")
+        raise SystemExit(1)
 
     errors = data.get("errors")
     if errors:
@@ -204,6 +205,7 @@ def gh_graphql(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
 def emit_jsonl(obj: Any) -> None:
     sys.stdout.write(json.dumps(obj, ensure_ascii=False))
     sys.stdout.write("\n")
+    sys.stdout.flush()
 
 
 def main() -> int:
