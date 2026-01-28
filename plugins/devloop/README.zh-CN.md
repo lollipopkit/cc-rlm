@@ -40,20 +40,20 @@
 enabled: true
 base_branch: "main"
 
-# Review behavior
+# 审查行为
 max_review_polls: 40
 review_poll_seconds: 60
 
-# Wait for review behavior
+# 等待审查行为
 wait_behavior: "poll"   # poll|ping_ai
 ping_message_template: "@{{ai_id}} This PR is awaiting review feedback. Could you provide an update?"
-ping_threshold: 3       # number of wait rounds before pinging (minimum 1)
+ping_threshold: 3       # ping 前的等待轮数（最少 1）
 
-# Notifications (optional)
+# 通知 (可选)
 notify_enabled: false
 notify_shell: "auto"            # auto|bash|fish
 notify_on_stop: true
-notify_command_template: ""      # executed with selected shell; can reference env vars below
+notify_command_template: ""      # 使用所选 shell 执行
 ---
 
 由 <https://github.com/lollipopkit/cc-plugins> 生成
